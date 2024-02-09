@@ -1,25 +1,24 @@
-JAVAC = javac
-JAVA = java
-SRCDIR = src
-BINDIR = bin
-LIBDIR = lib
-MAINCLASS = Main
-CLASSPATH = $(LIBDIR)/*:$(BINDIR)
+SRC_DIR := src
+BIN_DIR := bin
+LIB_DIR := lib
 
-.SUFFIXES: .java .class
+JAVAC := javac
+JAVA := java
+CP := $(BIN_DIR):$(LIB_DIR)/*
 
-.java.class:
-	$(JAVAC) -cp $(CLASSPATH) -d $(BINDIR) $*.java
+JAVA_FILES := $(wildcard $(SRC_DIR)/*.java)
+MAIN_CLASS := org.jck.App
 
-CLASSES = \
-    $(SRCDIR)/Main.java
+default: build
 
-default: classes
-
-classes: $(CLASSES:.java=.class)
+build:
+	@echo "Compiling Java source files..."
+	@$(JAVAC) -cp $(CP) -d $(BIN_DIR) $(JAVA_FILES)
 
 run:
-	$(JAVA) -cp $(CLASSPATH) $(MAINCLASS)
+	@$(JAVA) -cp $(CP) $(MAIN_CLASS)
 
 clean:
-	$(RM) $(BINDIR)/*.class
+	$(RM) $(BIN_DIR)/*.class
+
+.PHONY: build run clean
