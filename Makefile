@@ -7,7 +7,7 @@ JAVA := java
 CP := $(BIN_DIR):$(LIB_DIR)/*
 
 JAVA_FILES := $(wildcard $(SRC_DIR)/*.java)
-MAIN_CLASS := org.jck.App
+MAIN_CLASS := App
 
 default: build
 
