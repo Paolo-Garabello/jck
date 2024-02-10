@@ -1,10 +1,20 @@
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
-
 import java.net.InetSocketAddress;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
+import java.util.HashMap;
 
-public class MainWebSocketServer extends WebSocketServer {
+public class MainWebSocketServer extends WebSocketServer{
+
+    private HashMap<WebSocket, String> hashmap = new HashMap<WebSocket, String>();
+    private ObjectMapper mapper = new ObjectMapper();
+    private static int id = 0;
+
+    private String randomUsername(){
+        return (new Faker()).name().firstName() + id++;
+    }
 
     public MainWebSocketServer(InetSocketAddress address) {
         super(address);
@@ -17,6 +27,7 @@ public class MainWebSocketServer extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
+        hashmap.put(conn, randomUsername());
         System.out.println("New connection: " + conn.getRemoteSocketAddress());
     }
 
@@ -26,10 +37,13 @@ public class MainWebSocketServer extends WebSocketServer {
     }
 
     @Override
-    public void onMessage(WebSocket conn, String message) {
+    public void onMessage(WebSocket conn, String message){
         System.out.println("Received message from " + conn.getRemoteSocketAddress() + ": " + message);
-        // Send a reply message
-        conn.send("Server received: " + message);
+        try{
+            this.broadcast(mapper.writeValueAsString(new GlobalMessage(message, hashmap.get(conn))));
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
