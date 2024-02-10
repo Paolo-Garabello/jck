@@ -19,6 +19,6 @@ run:
 	@$(JAVA) -cp $(CP) $(MAIN_CLASS)
 
 clean:
-	$(RM) $(BIN_DIR)/*.class
+	$(RM) -r $(BIN_DIR)/
 
 .PHONY: build run clean
