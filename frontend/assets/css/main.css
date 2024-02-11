@@ -54,9 +54,20 @@ main {
 .chat-wrapper ul li:before {
     content: attr(data-sender);
     font-weight: bold;
+    font-size: small;
     color: var(--secondary-content);
     position: absolute;
     top: 0;
+}
+
+.chat-wrapper ul li::after {
+    content: attr(data-date);
+    font-weight: lighter;
+    font-size: smaller;
+    color: var(--secondary-content);
+    position: absolute;
+    bottom: 0;
+    right: 10px;
 }
 
 .chat-wrapper ul li.me {
