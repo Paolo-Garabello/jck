@@ -1,71 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JCK</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="assets/js/jquery-3.7.1.slim.min.js"></script>
-    <script src="assets/js/Chat.js"></script>
+  <title>JCK</title>
 
-    <link rel="stylesheet" href="assets/css/main.css">
-
+  <script src="assets/js/jquery-3.7.1.slim.min.js"></script>
+  <script src="assets/js/Chat.js"></script>
+  <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
+  <main>
+    <div class="chat-wrapper" id="public-chat">
+        <h2>Public Chat</h2>
+        <ul id="public-chat-messages"></ul>
+        <div class="send-message">
+          <input type="text" id="public-message-input" placeholder="Type your message...">
+          <button id="public-send-button">Send</button>
+        </div>
+    </div>
     
-    <main>
-
-        <div class="chat-wrapper" id="public-chat">
-            <h2>Public Chat</h2>
-
-            <ul id="public-chat-messages"></ul>
-
-            <div class="send-message">
-                <input type="text" id="public-message-input" placeholder="Type your message...">
-                <button id="public-send-button">Send</button>
-            </div>
+    <div class="chat-wrapper" id="dm">
+        <h2>DMs</h2>
+        <ul class="chat" id="dm-messages"></ul>
+        <div class="send-message">
+          <input type="text" id="dm-message-input" placeholder="Type your message...">
+          <button id="dm-send-button">Send</button>
         </div>
+    </div>
+  </main>
 
-        <div class="chat-wrapper" id="dm">
-            <h2>DMs</h2>
-
-            <ul class="chat" id="dm-messages"></ul>
-
-            <div class="send-message">
-                <input type="text" id="dm-message-input" placeholder="Type your message...">
-                <button id="dm-send-button">Send</button>
-            </div>
-        </div>
-
-    </main>
-
-    <script>
-        const chat = new Chat("ws://localhost:8887");
-
-        const sendButton = document.getElementById("public-send-button");
-        const messageInput = document.getElementById("public-message-input");
-
-        sendButton.addEventListener("click", function() {
-            const message = messageInput.value;
-            chat.sendMessage({
-                message: message
-            });
-            messageInput.value = "";
+  <script>
+      const chat = new Chat("ws://localhost:8887");
+      const sendButton = document.getElementById("public-send-button");
+      const messageInput = document.getElementById("public-message-input");
+      sendButton.addEventListener("click", function() {
+        const message = messageInput.value;
+        chat.sendMessage({
+          message: message
         });
-
-        document.getElementById("public-message-input").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                document.getElementById("public-send-button").click();
-            }
-        });
-
-        document.getElementById("dm-message-input").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                document.getElementById("dm-send-button").click();
-            }
-        });
-
-    </script>
-
+        messageInput.value = "";
+      });
+      document.getElementById("public-message-input").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+          document.getElementById("public-send-button").click();
+        }
+      });
+      document.getElementById("dm-message-input").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+          document.getElementById("dm-send-button").click();
+        }
+      });
+  </script>
 </body>
 </html>
