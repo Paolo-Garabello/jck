@@ -38,9 +38,9 @@ public class MainWebSocketServer extends WebSocketServer{
 
     @Override
     public void onMessage(WebSocket conn, String message){
-        System.out.println("Received message from " + conn.getRemoteSocketAddress() + ": " + message);
         try{
-            this.broadcast(mapper.writeValueAsString(new GlobalMessage(message, hashmap.get(conn))));
+            System.out.println("Received message from " + conn.getRemoteSocketAddress() + ": " + mapper.readValue(message, Message.class).getMessage());
+            this.broadcast(mapper.writeValueAsString(new GlobalMessage(mapper.readValue(message, Message.class).getMessage(), hashmap.get(conn))));
         } catch(Exception e){
             e.printStackTrace();
         }
