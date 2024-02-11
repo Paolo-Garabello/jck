@@ -20,7 +20,7 @@
           <button id="public-send-button">Send</button>
         </div>
     </div>
-    
+
     <div class="chat-wrapper" id="dm">
         <h2>DMs</h2>
         <ul class="chat" id="dm-messages"></ul>
@@ -32,26 +32,30 @@
   </main>
 
   <script>
+    $(document).ready(function() {
       const chat = new Chat("ws://localhost:8887");
-      const sendButton = document.getElementById("public-send-button");
-      const messageInput = document.getElementById("public-message-input");
-      sendButton.addEventListener("click", function() {
-        const message = messageInput.value;
+
+      $("#public-send-button").click(function() {
+        const message = $("#public-message-input").val();
         chat.sendMessage({
           message: message
         });
-        messageInput.value = "";
+        $("#public-message-input").val("");
       });
-      document.getElementById("public-message-input").addEventListener("keyup", function(event) {
+      
+      $("#public-message-input").keyup(function(event) {
         if (event.key === "Enter") {
-          document.getElementById("public-send-button").click();
+          $("#public-send-button").click();
         }
       });
-      document.getElementById("dm-message-input").addEventListener("keyup", function(event) {
+
+      $("#dm-message-input").keyup(function(event) {
         if (event.key === "Enter") {
-          document.getElementById("dm-send-button").click();
+          $("#dm-send-button").click();
         }
       });
+
+    });
   </script>
 </body>
 </html>

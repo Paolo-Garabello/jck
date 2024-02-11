@@ -25,12 +25,13 @@ class Chat {
 
   updateMessages(data) {
     data = JSON.parse(data);
-    const responseList = document.getElementById("public-chat-messages");
-    const newMessage = document.createElement("li");
-    newMessage.setAttribute('data-sender', data.name);
-    newMessage.setAttribute('data-date', this.getFormattedDate(data.date));
-    newMessage.textContent = data.message;
-    responseList.appendChild(newMessage);
+    const responseList = $("#public-chat-messages");
+    const newMessage = $("<li>").attr({
+      'data-sender': data.name,
+      'data-date': this.getFormattedDate(data.date)
+    }).text(data.message);
+
+    responseList.append(newMessage);
   }
 
   getFormattedDate(unix_timestamp) {
