@@ -5,7 +5,7 @@ import java.util.Date;
 public class Message {
     private String message;
     private String name;
-    private String chatType;
+    private String chat;
     private long date;
 
     public Message(){}
@@ -16,8 +16,8 @@ public class Message {
         this.setDate(new Date().getTime());
     }
 
-    public String getChatType() {
-        return chatType;
+    public String getChat() {
+        return chat;
     }
 
     public long getDate() {
@@ -32,8 +32,8 @@ public class Message {
         return name;
     }
 
-    public void setChatType(String chatType) {
-        this.chatType = chatType;
+    public void setChat(String chat) {
+        this.chat = chat;
     }
 
     public void setDate(long date) {

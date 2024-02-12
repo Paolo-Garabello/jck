@@ -6,7 +6,7 @@ public class DirectMessage extends Message{
     public DirectMessage(String message, String name, String destination){
         super(message, name);
         this.destination = destination;
-        this.setChatType("DM");
+        this.setChat("DM");
     }
 
     public String getDestination() {
