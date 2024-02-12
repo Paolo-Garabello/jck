@@ -6,7 +6,7 @@ JAVAC := javac
 JAVA := java
 CP := $(BIN_DIR):$(LIB_DIR)/*
 
-JAVA_FILES := $(wildcard $(SRC_DIR)/*.java)
+JAVA_FILES := $(shell find $(SRC_DIR) -name '*.java')
 MAIN_CLASS := App
 
 default: build

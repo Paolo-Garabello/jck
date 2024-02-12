@@ -1,9 +1,20 @@
+package types.JSON;
+
+import java.util.Date;
+
 public class Message {
     private String message;
     private String name;
     private String chatType;
     private long date;
 
+    public Message(){}
+
+    public Message(String message, String name){
+        this.setMessage(message);
+        this.setName("@" + name);
+        this.setDate(new Date().getTime());
+    }
 
     public String getChatType() {
         return chatType;

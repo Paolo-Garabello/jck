@@ -4,6 +4,9 @@ import org.java_websocket.server.WebSocketServer;
 import java.net.InetSocketAddress;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
+import types.JSON.GlobalMessage;
+import types.JSON.Message;
+import types.JSON.SessionUsername;
 import java.util.HashMap;
 
 public class MainWebSocketServer extends WebSocketServer{
@@ -29,6 +32,11 @@ public class MainWebSocketServer extends WebSocketServer{
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         hashmap.put(conn, randomUsername());
         System.out.println("New connection: " + conn.getRemoteSocketAddress());
+        try{
+            conn.send(mapper.writeValueAsString(new SessionUsername(hashmap.get(conn))));
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
