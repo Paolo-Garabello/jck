@@ -3,14 +3,22 @@
   import type { Message } from '$lib/types/Message.d.ts'
   import MessageComponent from "./Message.svelte";
 
-  let messages: Message[] = [];
   export let websocket: WebSocket;
+
+  let messages: Message[] = [];
+  let MyUsername: string = "";
 
   setContext('websocket', websocket);
 
   function handleMessage(event: MessageEvent) {
-    const newMessageData = JSON.parse(event.data);
-    messages = [...messages, newMessageData];
+    const data = JSON.parse(event.data);
+
+    if(data.username) {
+      MyUsername = data.username;
+    } else {
+      messages = [...messages, data];
+    }
+
   }
 
 
@@ -32,6 +40,7 @@
   {#each messages as message}
     <MessageComponent
       data={message}
+      MyUsername={MyUsername}
     />
   {/each}
 </ul>

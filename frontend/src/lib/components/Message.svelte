@@ -2,6 +2,7 @@
   import type { Message } from '$lib/types/Message';
 
   export let data: Message;
+  export let MyUsername: string;
 
   function getFormattedDate(unix_timestamp: number) {
     let date = new Date(unix_timestamp);
@@ -11,7 +12,7 @@
 
 </script>
 
-<li data-sender={data.name} data-date={getFormattedDate(data.date)}>
+<li data-sender={data.name} data-date={getFormattedDate(data.date)} class:me={MyUsername === data.name}>
   {#each data.message.split('\n') as line}
     <div>{line}</div>
   {/each}
@@ -50,5 +51,10 @@
     position: absolute;
     bottom: 0;
     right: 10px;
+  }
+
+  li.me {
+    align-self: flex-end;
+    background-color: var(--primary-dark);
   }
 </style>
