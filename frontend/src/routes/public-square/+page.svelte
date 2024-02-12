@@ -27,7 +27,7 @@
   <Chat
     title="Public Square"
     websocket={websocket}
-    chatType="public"
+    chat="public"
   />
 </main>
 

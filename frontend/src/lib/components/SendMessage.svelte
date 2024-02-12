@@ -1,6 +1,6 @@
 <script lang="ts">
   export let websocket: WebSocket;
-  export let chatType: string;
+  export let chat: string;
 
   let message: string = "";
 
@@ -8,7 +8,7 @@
     if (message.trim() !== '') {
       websocket.send(JSON.stringify({
         message: message,
-        // type: chatType
+        chat: chat
       }));
 
       message = '';

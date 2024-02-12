@@ -3,7 +3,7 @@
   import SendMessage from "./SendMessage.svelte";
 
   export let title: string;
-  export let chatType: string;
+  export let chat: string;
   export let websocket: WebSocket;
 </script>
 
@@ -18,7 +18,7 @@
 
   <SendMessage
     websocket={websocket}
-    chatType={chatType}
+    chat={chat}
   />
 
 </div>
