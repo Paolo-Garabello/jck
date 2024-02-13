@@ -32,12 +32,13 @@
   .send-message {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 90%;
     margin: 20px;
 
     textarea {
       font-family: inherit;
-      flex: 1;
+      width: clamp(10px, 30vw, 1000px);
       padding: 10px;
       background-color: var(--secondary-content);
       color: var(--copy);

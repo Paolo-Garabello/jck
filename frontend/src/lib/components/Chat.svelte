@@ -16,10 +16,12 @@
     />
   </div>
 
-  <SendMessage
-    websocket={websocket}
-    chat={chat}
-  />
+  <div class="send-message">
+    <SendMessage
+      websocket={websocket}
+      chat={chat}
+    />
+  </div>
 
 </div>
 
@@ -31,12 +33,22 @@
     flex-direction: column;
     border: 2px solid var(--border);
     border-radius: 10px;
-    width: 50vw;
-    min-height: 90vh;
+    width: calc(100% - 20vw);
+    height: 90vh;
+    text-align: center;
+    margin: 50px;
+
+    h1 {
+      font-size: clamp(20px, 5vw, 40px);
+    }
 
     .messages {
       height: 70vh;
       width: 95%;
+    }
+
+    .send-message {
+      width: 100%;
     }
   }
 </style>

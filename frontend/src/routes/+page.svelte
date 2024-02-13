@@ -46,6 +46,5 @@
     justify-content: space-evenly;
     flex-wrap: wrap;
     gap: 10%;
-    column-gap: 5vh;
   }
 </style>

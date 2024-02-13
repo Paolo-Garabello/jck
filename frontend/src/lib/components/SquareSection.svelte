@@ -31,6 +31,7 @@
       border-radius: 20px;
       position: relative;
       text-align: center;
+      margin: 15px;
 
       .blur {
         filter: blur(2.5px);
