@@ -34,12 +34,13 @@
     border: 2px solid var(--border);
     border-radius: 10px;
     width: calc(100% - 20vw);
+    max-width: 700px;
     height: 90vh;
-    text-align: center;
     margin: 50px;
 
     h1 {
       font-size: clamp(20px, 5vw, 40px);
+      text-align: center;
     }
 
     .messages {

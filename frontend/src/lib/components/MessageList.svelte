@@ -52,6 +52,6 @@
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: scroll;
-    margin: 0 10px;
+    padding-left: 0;
   }
 </style>
