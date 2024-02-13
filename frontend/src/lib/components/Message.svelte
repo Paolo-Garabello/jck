@@ -1,8 +1,13 @@
 <script lang="ts">
   import type { Message } from '$lib/types/Message';
+	import { onMount } from 'svelte';
 
   export let data: Message;
-  export let MyUsername: string;
+  let MyUsername: string|null;
+
+  onMount(() => {
+    MyUsername = localStorage.getItem('public_username');
+  });
 
   function getFormattedDate(unix_timestamp: number) {
     let date = new Date(unix_timestamp);

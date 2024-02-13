@@ -6,7 +6,6 @@
   export let websocket: WebSocket;
 
   let messages: Message[] = [];
-  let MyUsername: string = "";
 
   setContext('websocket', websocket);
 
@@ -14,7 +13,7 @@
     const data = JSON.parse(event.data);
 
     if(data.username) {
-      MyUsername = data.username;
+      localStorage.setItem('public_username', data.username);
     } else {
       messages = [...messages, data];
     }
@@ -40,7 +39,6 @@
   {#each messages as message}
     <MessageComponent
       data={message}
-      MyUsername={MyUsername}
     />
   {/each}
 </ul>
