@@ -4,7 +4,7 @@ import org.java_websocket.server.WebSocketServer;
 import java.net.InetSocketAddress;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
-import types.JSON.GlobalMessage;
+import types.JSON.PublicMessage;
 import types.JSON.Message;
 import types.JSON.SessionUsername;
 import java.util.HashMap;
@@ -48,10 +48,10 @@ public class MainWebSocketServer extends WebSocketServer{
     public void onMessage(WebSocket conn, String message){
         try{
             Message msg = mapper.readValue(message, Message.class);
-            if(msg.getChat() == "global"){    
-                System.out.println("Received gloval message from " + conn.getRemoteSocketAddress() + ": " + msg.getMessage());
-                this.broadcast(mapper.writeValueAsString(new GlobalMessage(mapper.readValue(message, Message.class).getMessage(), hashmap.get(conn))));
-            }
+            if(msg.getChat().equals("public")){    
+                System.out.println("Received public message from " + conn.getRemoteSocketAddress() + ": " + msg.getMessage());
+                this.broadcast(mapper.writeValueAsString(new PublicMessage(mapper.readValue(message, Message.class).getMessage(), hashmap.get(conn))));
+            }    
         } catch(Exception e){
             e.printStackTrace();
         }
