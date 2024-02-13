@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fade } from "svelte/transition";
   import MessageList from "./MessageList.svelte";
   import SendMessage from "./SendMessage.svelte";
 
@@ -7,7 +8,7 @@
   export let websocket: WebSocket;
 </script>
 
-<div class="wrapper">
+<div class="wrapper" transition:fade>
   <h1>{title}</h1>
 
   <div class="messages">

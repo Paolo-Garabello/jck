@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Message } from '$lib/types/Message';
 	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 
   export let data: Message;
   let MyUsername: string|null;
@@ -17,7 +18,15 @@
 
 </script>
 
-<li data-sender={data.name} data-date={getFormattedDate(data.date)} class:me={MyUsername === data.name}>
+<li
+  data-sender={data.name}
+  data-date={getFormattedDate(data.date)}
+  class:me={MyUsername === data.name}
+  transition:slide={{
+    axis: "x",
+    duration: 300
+  }}
+>
   {#each data.message.split('\n') as line}
     <div>{line}</div>
   {/each}
