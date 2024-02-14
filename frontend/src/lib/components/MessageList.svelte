@@ -13,7 +13,7 @@
     const data = JSON.parse(event.data);
 
     if(data.username) {
-      localStorage.setItem('public_username', data.username);
+      sessionStorage.setItem('public_username', data.username);
     } else {
       messages = [...messages, data];
     }

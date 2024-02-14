@@ -7,7 +7,7 @@
   let MyUsername: string|null;
 
   onMount(() => {
-    MyUsername = localStorage.getItem('public_username');
+    MyUsername = sessionStorage.getItem('public_username');
   });
 
   function getFormattedDate(unix_timestamp: number) {
