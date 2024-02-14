@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, getContext, setContext } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import type { Message } from '$lib/types/Message.d.ts'
   import MessageComponent from "./Message.svelte";
 
