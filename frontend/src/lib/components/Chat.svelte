@@ -2,24 +2,63 @@
 	import { fade } from "svelte/transition";
   import { onMount, setContext } from 'svelte';
   import { Shadow } from 'svelte-loading-spinners';
+  import { getNotificationsContext } from 'svelte-notifications';
+
   import MessageList from "./MessageList.svelte";
   import SendMessage from "./SendMessage.svelte";
+	import { load } from "../../routes/dm/@[username]/+page";
 
   export let title: string;
   export let chat: string;
   export let websocket: WebSocket;
 
-  let connected: boolean = false;
+  const { addNotification } = getNotificationsContext();
+
+  let loading = true;
+
+  function handleSocket() {
+    loading = false;
+
+    websocket.onopen = () => {
+      console.log(`Connected successfully to "${title}".`);
+      addNotification({
+        text: 'Connected',
+        type: 'success',
+        position: 'bottom-right',
+        removeAfter: 3000
+      })
+    };
+
+    websocket.onerror = () => {
+      console.log(`You've been disconnected from "${title}".`);
+      addNotification({
+        text: 'Connection Error',
+        type: 'error',
+        position: 'bottom-right',
+        removeAfter: 3000
+      })
+    };
+
+    websocket.onclose = () => {
+      console.log(`There was an error connecting to "${title}".`);
+      addNotification({
+        text: 'Disconnected',
+        type: 'warning',
+        position: 'bottom-right',
+        removeAfter: 2000
+      })
+    };
+  }
 
   onMount(() => {
     if (websocket) {
-      connected = true;
+      handleSocket();
     }
   });
 
   $: {
     if (websocket) {
-      connected = true;
+      handleSocket();
     }
   }
 
@@ -29,7 +68,7 @@
   <h1>{title}</h1>
 
   <div class="messages">
-    {#if connected}
+    {#if !loading}
       <MessageList
         websocket={websocket}
       />
@@ -48,7 +87,6 @@
   </div>
 
 </div>
-
 
 <style lang="scss">
   .wrapper {
