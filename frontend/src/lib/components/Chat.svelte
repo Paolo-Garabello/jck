@@ -6,7 +6,6 @@
 
   import MessageList from "./MessageList.svelte";
   import SendMessage from "./SendMessage.svelte";
-	import { load } from "../../routes/dm/@[username]/+page";
 
   export let title: string;
   export let chat: string;
