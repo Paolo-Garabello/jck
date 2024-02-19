@@ -25,27 +25,27 @@
         type: 'success',
         position: 'bottom-right',
         removeAfter: 3000
-      })
+      });
     };
 
     websocket.onerror = () => {
-      console.log(`You've been disconnected from "${title}".`);
+      console.log(`There was an error connecting to "${title}".`);
       addNotification({
         text: 'Connection Error',
         type: 'error',
         position: 'bottom-right',
         removeAfter: 3000
-      })
+      });
     };
 
     websocket.onclose = () => {
-      console.log(`There was an error connecting to "${title}".`);
+      console.log(`You've been disconnected from "${title}".`);
       addNotification({
         text: 'Disconnected',
         type: 'warning',
         position: 'bottom-right',
         removeAfter: 2000
-      })
+      });
     };
   }
 
