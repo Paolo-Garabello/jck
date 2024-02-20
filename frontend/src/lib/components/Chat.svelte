@@ -18,6 +18,7 @@
 
   function handleSocket() {
     loading = false;
+    connected = true;
 
     websocket.onopen = () => {
       console.log(`Connected successfully to "${title}".`);
@@ -33,6 +34,7 @@
 
     websocket.onerror = () => {
       console.log(`There was an error connecting to "${title}".`);
+      connected = false;
 
       addNotification({
         text: 'Connection Error',
@@ -44,7 +46,8 @@
 
     websocket.onclose = () => {
       console.log(`You've been disconnected from "${title}".`);
-      
+      connected = false;
+
       addNotification({
         text: 'Disconnected',
         type: 'warning',
@@ -87,7 +90,7 @@
     <SendMessage
       websocket={websocket}
       chat={chat}
-      active={connected}
+      active={!loading && connected}
     />
   </div>
 
