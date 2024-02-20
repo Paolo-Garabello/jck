@@ -1,14 +1,20 @@
 <script lang="ts">
   export let websocket: WebSocket;
   export let chat: string;
+  export let active: boolean;
 
   let message: string = "";
 
   function sendMessage() {
+    if(!active) return;
+
     if (message.trim() !== '') {
       websocket.send(JSON.stringify({
-        message: message,
-        chat: chat
+        request: "sendMessage",
+        content: {
+          message: message,
+          chat: chat
+        }
       }));
 
       message = '';
@@ -24,7 +30,7 @@
 </script>
 
 <div class="send-message">
-  <textarea bind:value={message} id="public-message-input" placeholder="Type your message..." on:keydown={handleKeyDown}></textarea>
+  <textarea disabled={!active} bind:value={message} id="public-message-input" placeholder="Type your message..." on:keydown={handleKeyDown}></textarea>
   <button id="public-send-button" on:click={sendMessage}>Send</button>
 </div>
 

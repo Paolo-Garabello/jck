@@ -14,12 +14,15 @@
   const { addNotification } = getNotificationsContext();
 
   let loading = true;
+  let connected = false;
 
   function handleSocket() {
     loading = false;
 
     websocket.onopen = () => {
       console.log(`Connected successfully to "${title}".`);
+      connected = true;
+
       addNotification({
         text: 'Connected',
         type: 'success',
@@ -30,6 +33,7 @@
 
     websocket.onerror = () => {
       console.log(`There was an error connecting to "${title}".`);
+
       addNotification({
         text: 'Connection Error',
         type: 'error',
@@ -40,6 +44,7 @@
 
     websocket.onclose = () => {
       console.log(`You've been disconnected from "${title}".`);
+      
       addNotification({
         text: 'Disconnected',
         type: 'warning',
@@ -82,6 +87,7 @@
     <SendMessage
       websocket={websocket}
       chat={chat}
+      active={connected}
     />
   </div>
 
