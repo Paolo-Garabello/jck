@@ -42,7 +42,7 @@
     min-width: 100px;
     max-width: 40%;
     background-color: var(--primary-light);
-    color: black;
+    color: var(--primary-content);
     position: relative;
     word-wrap: break-word;
     line-height: 1.2em;
@@ -52,7 +52,6 @@
     content: attr(data-sender);
     font-weight: bold;
     font-size: small;
-    color: var(--secondary-content);
     position: absolute;
     top: 0;
   }
@@ -61,7 +60,6 @@
     content: attr(data-date);
     font-weight: lighter;
     font-size: smaller;
-    color: var(--secondary-content);
     position: absolute;
     bottom: 0;
     right: 10px;
