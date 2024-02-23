@@ -17,6 +17,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
+
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 
 public class MainWebSocketServer extends WebSocketServer{
@@ -31,12 +33,15 @@ public class MainWebSocketServer extends WebSocketServer{
         return (new Faker()).name().firstName() + id++;
     }
 
-    private String createToken(){ //TODO non funge
+    public static String createToken() {
         try{
             MessageDigest md = MessageDigest.getInstance("MD5");
+            md.reset();
             md.update(new Timestamp(System.currentTimeMillis()).toString().getBytes());
             md.update((md.digest().toString() + Math.random()).getBytes());
-            return md.digest().toString();
+            BigInteger bigInt = new BigInteger(1,md.digest());
+            String hashtext = bigInt.toString(16);
+            return hashtext.toString();
         } catch(NoSuchAlgorithmException e){
             e.printStackTrace();
             return null;
