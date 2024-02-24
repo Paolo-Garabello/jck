@@ -1,48 +1,40 @@
 <script lang="ts">
-  import AccessForm from '$lib/components/AccessFormWrapper.svelte';
-
-  export let data;
-  let websocket: WebSocket = data.websocket;
-</script>
-
-<AccessForm
-  requestType="login"
-  goToUrl="/signup"
-  goToText="Don't have an account? Signup"
-  websocket={websocket}
-/>
-<!--
-<script lang="ts">
   import { onMount } from 'svelte';
-  import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
   import { getNotificationsContext } from 'svelte-notifications';
+
+  export let requestType: string;
+  export let goToUrl: string;
+  export let goToText: string;
+  export let websocket: WebSocket;
 
   let username: string = "";
   let password: string = "";
 
-  let websocket: WebSocket;
+  const { addNotification } = getNotificationsContext();
 
-  onMount(() => {
-    websocket = new WebSocket(PUBLIC_WEBSOCKET_URL);
-
-    websocket.onopen = () => {
-      console.log('WebSocket connection established');
-    };
-
-    websocket.onclose = () => {
-      console.log('WebSocket connection closed.');
-    }
-
-    websocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
+  websocket.addEventListener('message', (event: MessageEvent) => {
+    console.log(event.data);
+    handleMessage(event);
   });
 
-  async function handleSubmit(event: Event) {
+  function handleMessage(event: MessageEvent) {
+    const data = JSON.parse(event.data);
+
+    if(data.statusCode) {
+      addNotification({
+        text: data.ok ? ({requestType} + ' successfull') : data.message,
+        type: data.ok ? 'success' : 'error',
+        position: 'bottom-right',
+        removeAfter: 3000
+      });
+    }
+
+  }
+
+  function handleSubmit(event: Event) {
     event.preventDefault();
     websocket.send(JSON.stringify({
-      request: "login",
+      request: requestType,
       data: {
         username: username,
         password: password
@@ -56,7 +48,7 @@
 
 <main>
   <form on:submit={handleSubmit}>
-    <h1>Login</h1>
+    <h1>{requestType.charAt(0).toUpperCase() + requestType.slice(1)}</h1>
 
     <label for="username">Username</label>
     <input bind:value={username} type="text" placeholder="Username" id="username" required>
@@ -64,9 +56,9 @@
     <label for="password">Password</label>
     <input bind:value={password} type="password" placeholder="Password" id="password" required>
 
-    <button type="submit">Log In</button>
+    <button type="submit">{requestType.charAt(0).toUpperCase() + requestType.slice(1)}</button>
 
-    <a href="/signup">Don't have an account? Signup</a>
+    <a href="/{goToUrl}">{goToText}</a>
   </form>
 </main>
 
@@ -141,4 +133,4 @@
     }
   }
 
-</style> -->
+</style>
