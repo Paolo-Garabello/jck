@@ -1,3 +1,6 @@
 # Compiled Java classes
 /bin/
 *.class
+
+# database
+/db/database.db

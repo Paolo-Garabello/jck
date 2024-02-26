@@ -3,31 +3,31 @@ package types.JSON;
 public class Request {
     private String request;
     private Message content;
-    private Login data;
-    private String token;
+    private Login userInfo;
+    private String data;
 
-    public String getToken() {
-        return token;
+    public String getData() {
+        return data;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public void setContent(Message content) {
         this.content = content;
     }
 
-    public void setData(Login data) {
-        this.data = data;
+    public void setUserInfo(Login userInfo) {
+        this.userInfo = userInfo;
     }
 
     public Message getContent() {
         return content;
     }
 
-    public Login getData() {
-        return data;
+    public Login getUserInfo() {
+        return userInfo;
     }
 
     public String getRequest() {

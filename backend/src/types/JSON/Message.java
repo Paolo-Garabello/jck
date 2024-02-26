@@ -4,15 +4,13 @@ import java.util.Date;
 
 public class Message {
     private String message;
-    private String name;
     private String chat;
     private long date;
 
     public Message(){}
 
-    public Message(String message, String name){
+    public Message(String message){
         this.setMessage(message);
-        this.setName("@" + name);
         this.setDate(new Date().getTime());
     }
 
@@ -28,10 +26,6 @@ public class Message {
         return message;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setChat(String chat) {
         this.chat = chat;
     }
@@ -42,9 +36,5 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

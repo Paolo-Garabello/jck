@@ -1,15 +1,40 @@
 package types.JSON;
 
 public class DirectMessage extends Message{
-    private String destination;
+    private int recipient;
+    private int id;
+    private int sender;
 
-    public DirectMessage(String message, String name, String destination){
-        super(message, name);
-        this.destination = destination;
+    public DirectMessage(String message, int sender, int recipient, int id){
+        super(message);
+        this.recipient = recipient;
         this.setChat("DM");
+        this.id = id;
+        this.sender = sender;
     }
 
-    public String getDestination() {
-        return destination;
+    public int getSender() {
+        return sender;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(int recipient) {
+        this.recipient = recipient;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setSender(int sender) {
+        this.sender = sender;
+    }
+
 }

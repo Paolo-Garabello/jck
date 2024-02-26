@@ -7,8 +7,9 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import types.User;
+import types.JSON.Messages;
 import types.JSON.PublicMessage;
-import types.JSON.SessionUsername;
+import types.JSON.SessionUsername;  
 import types.JSON.Response;
 import types.JSON.Request;
 import java.security.MessageDigest;
@@ -17,11 +18,10 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
-
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 
-public class MainWebSocketServer extends WebSocketServer{
+public class MainWebSocketServer extends WebSocketServer {
 
     private BiMap<WebSocket, User> tokens = HashBiMap.create();
     private ObjectMapper mapper = new ObjectMapper();
@@ -29,20 +29,19 @@ public class MainWebSocketServer extends WebSocketServer{
     private Connection connection = null;
     Statement statement;
 
-    private String randomUsername(){
+    private String randomUsername() {
         return (new Faker()).name().firstName() + id++;
     }
 
     public static String createToken() {
-        try{
+        try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.reset();
             md.update(new Timestamp(System.currentTimeMillis()).toString().getBytes());
             md.update((md.digest().toString() + Math.random()).getBytes());
-            BigInteger bigInt = new BigInteger(1,md.digest());
-            String hashtext = bigInt.toString(16);
-            return hashtext.toString();
-        } catch(NoSuchAlgorithmException e){
+            BigInteger bigInt = new BigInteger(1, md.digest());
+            return bigInt.toString(16);
+        } catch(NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
         }
@@ -80,7 +79,7 @@ public class MainWebSocketServer extends WebSocketServer{
         System.out.println("Closed connection: " + conn.getRemoteSocketAddress());
     }
 
-    private User searchForToken(String token){
+    private User searchForToken(String token) {
         for (User user : tokens.values()) {
             if(user.getToken().equals(token))
                 return user;
@@ -89,9 +88,10 @@ public class MainWebSocketServer extends WebSocketServer{
     }
 
     @Override
-    public void onMessage(WebSocket conn, String message){
+    public void onMessage(WebSocket conn, String message) {
         try{
             System.out.println(message);
+            ResultSet res;
             Request req = mapper.readValue(message, Request.class);
 
             switch (req.getRequest()) {
@@ -107,7 +107,7 @@ public class MainWebSocketServer extends WebSocketServer{
 
                 case "signup":
                     try {
-                        statement.execute("INSERT INTO users(username, password) VALUES('" + req.getData().getUsername() + "', '" + req.getData().getPassword() + "');");
+                        statement.execute("INSERT INTO users(username, password) VALUES('" + req.getUserInfo().getUsername() + "', '" + req.getUserInfo().getPassword() + "');");
                         conn.send(mapper.writeValueAsString(new Response(true, 201)));
                     } catch(Exception e) {
                         conn.send(mapper.writeValueAsString(new Response(false, 401, "Wrong credentials")));
@@ -115,7 +115,7 @@ public class MainWebSocketServer extends WebSocketServer{
                     break;
                 
                 case "login":
-                    ResultSet res = statement.executeQuery("SELECT id, username FROM users WHERE username='" + req.getData().getUsername() + "'AND password='" + req.getData().getPassword() + "';");
+                    res = statement.executeQuery("SELECT id, username FROM users WHERE username='" + req.getUserInfo().getUsername() + "'AND password='" + req.getUserInfo().getPassword() + "';");
                     if(res.getString("username") != null) {
                         conn.send(mapper.writeValueAsString(new Response(true, 204)));
                         tokens.get(conn).setPrivateName(res);
@@ -125,14 +125,14 @@ public class MainWebSocketServer extends WebSocketServer{
                     break;
 
                 case "auth":
-                    if(req.getToken() == null) {
+                    if(req.getData() == null) {
                         String token = createToken();
                         tokens.put(conn, new User(token, randomUsername(), null));
                         conn.send(mapper.writeValueAsString(new Response(true, 205, token)));
                         conn.send(mapper.writeValueAsString(new SessionUsername(tokens.get(conn).getPublicName())));
                     } else { 
                         User user;
-                        if((user = searchForToken(req.getToken())) != null){
+                        if((user = searchForToken(req.getData())) != null) {
                             tokens.inverse().replace(user, conn);
                             conn.send(mapper.writeValueAsString(new Response(true, 200)));
                             conn.send(mapper.writeValueAsString(new SessionUsername(tokens.get(conn).getPublicName())));
@@ -144,12 +144,19 @@ public class MainWebSocketServer extends WebSocketServer{
                         }
                     }
                     break;
+                
+                case "getChats":
+                    int userID = tokens.get(conn).getPrivateName().getInt("id");
+                    res = statement.executeQuery("SELECT * FORM messages WHERE id=" + req.getData() + " AND (sender=" + userID + " OR recipient=" + userID + ")");
+                    conn.send(mapper.writeValueAsString(new Response(true, 206, mapper.writeValueAsString(new Messages(res)))));
+                    break;
+                    
                 default:
                     conn.send(mapper.writeValueAsString(new Response(false, 400, "Bad request")));
                     break;
             }
 
-        } catch(Exception e){
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
