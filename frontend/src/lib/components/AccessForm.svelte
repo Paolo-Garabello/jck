@@ -35,7 +35,7 @@
     event.preventDefault();
     websocket.send(JSON.stringify({
       request: requestType,
-      data: {
+      userInfo: {
         username: username,
         password: password
       }
@@ -58,7 +58,7 @@
 
     <button type="submit">{requestType.charAt(0).toUpperCase() + requestType.slice(1)}</button>
 
-    <a href="/{goToUrl}">{goToText}</a>
+    <a href="{goToUrl}">{goToText}</a>
   </form>
 </main>
 
