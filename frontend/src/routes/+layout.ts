@@ -11,7 +11,7 @@ export const load = ({ params }) => {
 
     websocket.send(JSON.stringify({
       'request': 'auth',
-      'token': token,
+      'data': token,
     }));
   }
 
