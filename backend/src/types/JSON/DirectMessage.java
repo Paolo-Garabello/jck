@@ -5,6 +5,13 @@ public class DirectMessage extends Message{
     private int id;
     private int sender;
 
+    /**
+     * 
+     * @param message
+     * @param sender
+     * @param recipient
+     * @param id
+     */
     public DirectMessage(String message, int sender, int recipient, int id){
         super(message);
         this.recipient = recipient;

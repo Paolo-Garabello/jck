@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import types.User;
+import types.JSON.DirectMessage;
 import types.JSON.Messages;
 import types.JSON.PublicMessage;
 import types.JSON.SessionUsername;  
@@ -27,7 +28,7 @@ public class MainWebSocketServer extends WebSocketServer {
     private ObjectMapper mapper = new ObjectMapper();
     private static int id = 0;
     private Connection connection = null;
-    Statement statement;
+    private Statement statement;
 
     private String randomUsername() {
         return (new Faker()).name().firstName() + id++;
@@ -92,6 +93,7 @@ public class MainWebSocketServer extends WebSocketServer {
         try{
             System.out.println(message);
             ResultSet res;
+            User user;
             Request req = mapper.readValue(message, Request.class);
 
             switch (req.getRequest()) {
@@ -102,6 +104,7 @@ public class MainWebSocketServer extends WebSocketServer {
                     } else if(req.getContent().getChat().indexOf('@') == 0) {
                         System.out.println("Received direct message from " + conn.getRemoteSocketAddress() + ": " + req.getContent().getMessage());
                         statement.execute("INSERT INTO messages(text, sender, recipient) VALUES('" + req.getContent().getMessage() + "', '" + tokens.get(conn).getPrivateName().getInt("id") + "', '" + req.getContent().getChat().substring(1) + "');");
+                        conn.send(mapper.writeValueAsString(new DirectMessage(message, tokens.get(conn).getPrivateName().getInt("id"), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt("id"))));
                     }
                     break;
 
@@ -131,9 +134,8 @@ public class MainWebSocketServer extends WebSocketServer {
                         conn.send(mapper.writeValueAsString(new Response(true, 205, token)));
                         conn.send(mapper.writeValueAsString(new SessionUsername(tokens.get(conn).getPublicName())));
                     } else { 
-                        User user;
                         if((user = searchForToken(req.getData())) != null) {
-                            tokens.inverse().replace(user, conn);
+                            tokens.put(conn, new User(user));
                             conn.send(mapper.writeValueAsString(new Response(true, 200)));
                             conn.send(mapper.writeValueAsString(new SessionUsername(tokens.get(conn).getPublicName())));
                         } else {
