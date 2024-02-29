@@ -16,21 +16,21 @@
   let loading = true;
   let connected = false;
 
+  websocket.addEventListener('open', (event) => {
+    console.log(`Connected successfully to "${title}".`);
+    connected = true;
+
+    addNotification({
+      text: 'Connected',
+      type: 'success',
+      position: 'bottom-right',
+      removeAfter: 3000
+    });
+  });
+
   function handleSocket() {
     loading = false;
     connected = true;
-
-    websocket.onopen = () => {
-      console.log(`Connected successfully to "${title}".`);
-      connected = true;
-
-      addNotification({
-        text: 'Connected',
-        type: 'success',
-        position: 'bottom-right',
-        removeAfter: 3000
-      });
-    };
 
     websocket.onerror = () => {
       console.log(`There was an error connecting to "${title}".`);
@@ -58,16 +58,9 @@
   }
 
   onMount(() => {
-    if (websocket) {
-      handleSocket();
-    }
+    connected = true;
+    loading = false;
   });
-
-  $: {
-    if (websocket) {
-      handleSocket();
-    }
-  }
 
 </script>
 
@@ -90,7 +83,7 @@
     <SendMessage
       websocket={websocket}
       chat={chat}
-      active={!loading && connected}
+      active={connected}
     />
   </div>
 

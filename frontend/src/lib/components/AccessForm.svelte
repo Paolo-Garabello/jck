@@ -6,6 +6,7 @@
   export let goToUrl: string;
   export let goToText: string;
   export let websocket: WebSocket;
+  export let onSuccess: Function;
 
   let username: string = "";
   let password: string = "";
@@ -21,6 +22,7 @@
     const data = JSON.parse(event.data);
 
     if(data.statusCode) {
+      onSuccess();
       addNotification({
         text: data.ok ? ({requestType} + ' successfull') : data.message,
         type: data.ok ? 'success' : 'error',

@@ -16,21 +16,23 @@
     return date.getHours() + ':' + minutes.substring(minutes.length - 2);
   }
 
-</script>
+  </script>
 
-<li
-  data-sender={data.name}
-  data-date={getFormattedDate(data.date)}
-  class:me={MyUsername === data.name}
-  transition:slide={{
-    axis: "x",
-    duration: 300
-  }}
->
-  {#each data.message.split('\n') as line}
-    <div>{line}</div>
-  {/each}
-</li>
+{#if data.message}
+  <li
+    data-sender={data.name}
+    data-date={getFormattedDate(data.date)}
+    class:me={MyUsername === data.name}
+    transition:slide={{
+      axis: "x",
+      duration: 300
+    }}
+  >
+    {#each data.message.split('\n') as line}
+      <div>{line}</div>
+    {/each}
+  </li>
+{/if}
 
 <style lang="scss">
   li {
