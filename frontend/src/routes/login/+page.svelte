@@ -5,7 +5,7 @@
   let websocket: WebSocket = data.websocket;
 
   function onSuccess() {
-    localStorage.setItem('logged', true);
+    localStorage.setItem('logged', 'true');
   }
 </script>
 
@@ -14,5 +14,4 @@
   goToUrl="/signup"
   goToText="Don't have an account? Signup"
   websocket={websocket}
-  onSuccess={onSuccess}
 />

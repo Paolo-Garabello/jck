@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { getNotificationsContext } from 'svelte-notifications';
 
   export let requestType: string;
   export let goToUrl: string;
   export let goToText: string;
   export let websocket: WebSocket;
-  export let onSuccess: Function;
 
   let username: string = "";
   let password: string = "";
+
+  let upperRequestType = requestType.charAt(0).toUpperCase() + requestType.slice(1);
 
   const { addNotification } = getNotificationsContext();
 
@@ -21,16 +22,16 @@
   function handleMessage(event: MessageEvent) {
     const data = JSON.parse(event.data);
 
-    if(data.statusCode) {
-      onSuccess();
-      addNotification({
-        text: data.ok ? ({requestType} + ' successfull') : data.message,
-        type: data.ok ? 'success' : 'error',
-        position: 'bottom-right',
-        removeAfter: 3000
-      });
-    }
+    addNotification({
+      text: data.ok ? upperRequestType + ' successfull' : data.message,
+      type: data.ok ? 'success' : 'error',
+      position: 'bottom-right',
+      removeAfter: data.ok ? 1000 : 400
+    });
 
+    if(data.ok && requestType === 'login') {
+      goto('/dm');
+    }
   }
 
   function handleSubmit(event: Event) {
@@ -50,7 +51,7 @@
 
 <main>
   <form on:submit={handleSubmit}>
-    <h1>{requestType.charAt(0).toUpperCase() + requestType.slice(1)}</h1>
+    <h1>{upperRequestType}</h1>
 
     <label for="username">Username</label>
     <input bind:value={username} type="text" placeholder="Username" id="username" required>
@@ -58,7 +59,7 @@
     <label for="password">Password</label>
     <input bind:value={password} type="password" placeholder="Password" id="password" required>
 
-    <button type="submit">{requestType.charAt(0).toUpperCase() + requestType.slice(1)}</button>
+    <button type="submit">{upperRequestType}</button>
 
     <a href="{goToUrl}">{goToText}</a>
   </form>

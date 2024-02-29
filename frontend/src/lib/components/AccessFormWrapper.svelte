@@ -6,7 +6,6 @@
   export let goToUrl: string;
   export let goToText: string;
   export let websocket: WebSocket;
-  export let onSuccess: Function;
 </script>
 
 <Notifications>
@@ -15,6 +14,5 @@
     goToUrl={goToUrl}
     goToText={goToText}
     websocket={websocket}
-    onSuccess={onSuccess}
   />
 </Notifications>
