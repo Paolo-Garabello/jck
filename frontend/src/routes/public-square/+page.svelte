@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import Chat from "$lib/components/ChatWrapper.svelte";
-  import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
 
   export let data;
 
