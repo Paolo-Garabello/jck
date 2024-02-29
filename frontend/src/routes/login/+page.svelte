@@ -3,6 +3,10 @@
 
   export let data;
   let websocket: WebSocket = data.websocket;
+
+  function onSuccess() {
+    localStorage.setItem('logged', true);
+  }
 </script>
 
 <AccessForm
@@ -10,5 +14,5 @@
   goToUrl="/signup"
   goToText="Don't have an account? Signup"
   websocket={websocket}
+  onSuccess={onSuccess}
 />
-

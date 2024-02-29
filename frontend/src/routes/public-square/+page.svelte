@@ -3,24 +3,9 @@
   import Chat from "$lib/components/ChatWrapper.svelte";
   import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
 
-  let websocket: WebSocket;
+  export let data;
 
-  onMount(() => {
-    websocket = new WebSocket(PUBLIC_WEBSOCKET_URL);
-
-    websocket.onopen = () => {
-      console.log('WebSocket connection established');
-    };
-
-    websocket.onclose = () => {
-      console.log('WebSocket connection closed.');
-    }
-
-    websocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-  });
+  let websocket: WebSocket = data.websocket;
 </script>
 
 <main>

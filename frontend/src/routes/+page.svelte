@@ -1,5 +1,8 @@
 <script lang="ts">
   import SquareSection from '$lib/components/SquareSection.svelte';
+
+  let logged: boolean = false;
+  logged = localStorage.getItem('logged');
 </script>
 
 <header>
@@ -19,7 +22,7 @@
     description="Encrypted chats with your friends"
     link="private-chat"
     blocker= {{
-      enabled: true,
+      enabled: !logged,
       displayString: "Login to Access!",
       url: "/login"
     }}
