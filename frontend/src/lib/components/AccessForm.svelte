@@ -29,7 +29,7 @@
       removeAfter: data.ok ? 1000 : 400
     });
 
-    if(data.ok && requestType === 'login') {
+    if(data.ok && data.statusCode === 204 && requestType === 'login') {
       goto('/dm');
     }
   }
