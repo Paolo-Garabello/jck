@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import types.User;
 import types.JSON.DirectMessage;
@@ -78,6 +79,11 @@ public class MainWebSocketServer extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println("Closed connection: " + conn.getRemoteSocketAddress());
+        try {
+            statement.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private User searchForToken(String token) {
@@ -86,6 +92,33 @@ public class MainWebSocketServer extends WebSocketServer {
                 return user;
         }
         return null;
+    }
+
+    public String processMessage(String message) {
+        String string = message;
+        String result = string.substring(0, (string.indexOf('\\') != -1 ? string.indexOf('\\') : string.length()));
+        while(string.indexOf('\\') != -1){
+            String str = string.substring(string.indexOf('\\')+1);
+            string = str.substring(str.indexOf('\\')+1);
+            str = str.substring(0, str.indexOf('\\'));
+
+            switch (str.substring(0, str.indexOf(' '))) {
+                case "c":   //pag 194
+                case "calc":
+                    result += " `" + Rotaluklak.calc(new Expression(str.substring(str.indexOf(' '))).toPolski()) + "` ";
+                    break;
+                case "k":   
+                case "rotaluklak":
+                    result += " `" + Rotaluklak.calc(str.substring(str.indexOf(' ')-1)) + "` ";
+                    break;
+                default:
+                    break;
+            }
+            
+        result += string.substring(0, (string.indexOf('\\') != -1 ? string.indexOf('\\') : string.length()));
+        }
+
+        return result;
     }
 
     @Override
@@ -100,11 +133,20 @@ public class MainWebSocketServer extends WebSocketServer {
                 case "sendMessage":
                     if(req.getContent().getChat().equals("public")) {    
                         System.out.println("Received public message from " + conn.getRemoteSocketAddress() + ": " + req.getContent().getMessage());
-                        this.broadcast(mapper.writeValueAsString(new PublicMessage(mapper.readValue(message, Request.class).getContent().getMessage(), tokens.get(conn).getPublicName())));
+                        this.broadcast(mapper.writeValueAsString(new PublicMessage(processMessage(req.getContent().getMessage()), tokens.get(conn).getPublicName())));
                     } else if(req.getContent().getChat().indexOf('@') == 0) {
                         System.out.println("Received direct message from " + conn.getRemoteSocketAddress() + ": " + req.getContent().getMessage());
-                        statement.execute("INSERT INTO messages(text, sender, recipient) VALUES('" + req.getContent().getMessage() + "', '" + tokens.get(conn).getPrivateName().getInt("id") + "', '" + req.getContent().getChat().substring(1) + "');");
-                        conn.send(mapper.writeValueAsString(new DirectMessage(message, tokens.get(conn).getPrivateName().getInt("id"), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt("id"))));
+                        statement.execute("INSERT INTO messages(text, sender, recipient) VALUES('" + req.getContent().getMessage() + "', '" + tokens.get(conn).getPrivateUser().getId() + "', '" + req.getContent().getChat().substring(1) + "');");
+                        user = tokens.get(conn);
+                        while (user.hasNext()) {
+                            conn.send(mapper.writeValueAsString(new DirectMessage(message, user.getPrivateUser().getId(), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt(1))));
+                            user = user.getNext();
+                        }    
+                        user = tokens.get(conn);
+                        while (user.hasPrevious()) {
+                            user = user.getPrevious();
+                            conn.send(mapper.writeValueAsString(new DirectMessage(message, user.getPrivateUser().getId(), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt(1))));
+                        }    
                     }
                     break;
 
@@ -112,16 +154,17 @@ public class MainWebSocketServer extends WebSocketServer {
                     try {
                         statement.execute("INSERT INTO users(username, password) VALUES('" + req.getUserInfo().getUsername() + "', '" + req.getUserInfo().getPassword() + "');");
                         conn.send(mapper.writeValueAsString(new Response(true, 201)));
-                    } catch(Exception e) {
-                        conn.send(mapper.writeValueAsString(new Response(false, 401, "Wrong credentials")));
+                    } catch(SQLException e) {
+                        conn.send(mapper.writeValueAsString(new Response(false, 409, "User already exists")));
                     }
                     break;
                 
-                case "login":
+                case "login": //TODO fare tutte le istanze degli user
                     res = statement.executeQuery("SELECT id, username FROM users WHERE username='" + req.getUserInfo().getUsername() + "'AND password='" + req.getUserInfo().getPassword() + "';");
                     if(res.getString("username") != null) {
                         conn.send(mapper.writeValueAsString(new Response(true, 204)));
-                        tokens.get(conn).setPrivateName(res);
+                        tokens.get(conn).setPrivateUser(res);
+                        System.out.println("Logged " + tokens.get(conn).getPrivateUser());
                     } else {
                         conn.send(mapper.writeValueAsString(new Response(false, 401, "Wrong credentials")));
                     }
@@ -130,7 +173,7 @@ public class MainWebSocketServer extends WebSocketServer {
                 case "auth":
                     if(req.getData() == null) {
                         String token = createToken();
-                        tokens.put(conn, new User(token, randomUsername(), null));
+                        tokens.put(conn, new User(token, randomUsername()));
                         conn.send(mapper.writeValueAsString(new Response(true, 205, token)));
                         conn.send(mapper.writeValueAsString(new SessionUsername(tokens.get(conn).getPublicName())));
                     } else { 
@@ -140,16 +183,19 @@ public class MainWebSocketServer extends WebSocketServer {
                             conn.send(mapper.writeValueAsString(new SessionUsername(tokens.get(conn).getPublicName())));
                         } else {
                             String token = createToken();
-                            tokens.put(conn, new User(token, randomUsername(), null));
+                            tokens.put(conn, new User(token, randomUsername()));
                             conn.send(mapper.writeValueAsString(new Response(false, 205, token)));
                             conn.send(mapper.writeValueAsString(new SessionUsername(tokens.get(conn).getPublicName())));
                         }
                     }
                     break;
                 
-                case "getChats":
-                    int userID = tokens.get(conn).getPrivateName().getInt("id");
-                    res = statement.executeQuery("SELECT * FORM messages WHERE id=" + req.getData() + " AND (sender=" + userID + " OR recipient=" + userID + ")");
+                case "getChats": 
+                    int userID = tokens.get(conn).getPrivateUser().getId();
+                    String id = (req.getData() != null ? req.getData() : "=0");
+                    String query = "SELECT * FROM messages WHERE id>" + id + " AND " + userID + " IN (sender, recipient)";
+                    System.out.println(query);
+                    res = statement.executeQuery(query);
                     conn.send(mapper.writeValueAsString(new Response(true, 206, mapper.writeValueAsString(new Messages(res)))));
                     break;
                     
@@ -157,7 +203,12 @@ public class MainWebSocketServer extends WebSocketServer {
                     conn.send(mapper.writeValueAsString(new Response(false, 400, "Bad request")));
                     break;
             }
-
+        // } catch(NullPointerException e) {
+        //     try {
+        //         conn.send(mapper.writeValueAsString(new Response(false, 404, "User not found")));
+        //     } catch(JsonProcessingException ex) {
+        //         ex.printStackTrace();
+        //     }
         } catch(Exception e) {
             e.printStackTrace();
         }

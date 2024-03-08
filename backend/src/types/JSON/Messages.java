@@ -9,10 +9,10 @@ public class Messages {
     public Messages(ResultSet res) {
         ArrayList<DirectMessage> arr = new ArrayList<DirectMessage>();
         try {
-            while (!res.isLast()) {
+            while (res.next()) { 
+                System.out.println(res.getString("text")+res.getInt("sender")+res.getInt("recipient")+res.getInt("id"));
                 arr.add(new DirectMessage(res.getString("text"), res.getInt("sender"), res.getInt("recipient"), res.getInt("id")));
-                res.next();
-            }
+            };
         } catch(SQLException e){
            e.printStackTrace();
         }
