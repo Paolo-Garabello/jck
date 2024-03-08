@@ -1,0 +1,13 @@
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY backend /app
+
+RUN apk add --no-cache build-base openjdk11 sqlite
+
+RUN make
+
+EXPOSE 8887
+
+CMD ["make",  "run"]
