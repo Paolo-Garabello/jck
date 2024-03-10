@@ -25,14 +25,21 @@ export const load = ({ params }) => {
 
 
   websocket.onmessage = (event: MessageEvent) => {
-    const data = JSON.parse(event.data);
+    sessionStorage.setItem('websocket.message', event.data);
+    let msg = sessionStorage.getItem('websocket.message');
+
+    if(!msg) return;
+
+    const data = JSON.parse(msg);
 
     if(data.username) {
       sessionStorage.setItem('public_username', data.username);
+      sessionStorage.removeItem('websocket.message');
     }
 
     if(data.statusCode === 205) { // Expecting a token from the server or wrong token was sent
-      localStorage.setItem('auth_token', data.message)
+      localStorage.setItem('auth_token', data.message);
+      sessionStorage.removeItem('websocket.message');
     }
 
   }
