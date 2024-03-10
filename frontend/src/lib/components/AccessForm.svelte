@@ -10,29 +10,77 @@
   let username: string = "";
   let password: string = "";
 
+  sessionStorage.setItem('expected.message', requestType);
+
   let upperRequestType = requestType.charAt(0).toUpperCase() + requestType.slice(1);
 
   const { addNotification } = getNotificationsContext();
 
-  websocket.addEventListener('message', (event: MessageEvent) => {
-    console.log(event.data);
-    handleMessage(event);
-  });
+  websocket.addEventListener('message', () => {
+    let msg = sessionStorage.getItem('websocket.message');
+    let req = sessionStorage.getItem('expected.message');
 
-  function handleMessage(event: MessageEvent) {
-    const data = JSON.parse(event.data);
+    if(!msg || !req) return;
 
-    addNotification({
-      text: data.ok ? upperRequestType + ' successfull' : data.message,
-      type: data.ok ? 'success' : 'error',
-      position: 'bottom-right',
-      removeAfter: data.ok ? 1000 : 400
-    });
+    const data = JSON.parse(msg);
 
-    if(data.ok && data.statusCode === 204 && requestType === 'login') {
-      goto('/dm');
+    if(req === 'signup') {
+      if(data.ok) {
+
+        if(data.statusCode === 201) {
+          sessionStorage.removeItem('websocket.message');
+
+          addNotification({
+            text: "Signup Successfull",
+            type: 'success',
+            position: 'bottom-right',
+            removeAfter: 4000
+          });
+        }
+
+      } else {
+
+        if(data.statusCode === 409) {
+          sessionStorage.removeItem('websocket.message');
+
+          addNotification({
+            text: data.message,
+            type: 'error',
+            position: 'bottom-right',
+            removeAfter: 4000
+          });
+        }
+
+      }
     }
-  }
+
+    if(req === 'login') {
+      if(data.ok) {
+
+        if(data.statusCode === 204) {
+          localStorage.setItem('logged', 'true');
+          sessionStorage.removeItem('websocket.message');
+          goto('/dm');
+        }
+
+      } else {
+
+        if(data.statusCode === 401) {
+          sessionStorage.removeItem('websocket.message');
+
+          addNotification({
+            text: data.message,
+            type: 'error',
+            position: 'bottom-right',
+            removeAfter: 4000
+          });
+        }
+
+      }
+
+    }
+
+  });
 
   function handleSubmit(event: Event) {
     event.preventDefault();

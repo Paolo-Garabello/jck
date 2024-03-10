@@ -7,14 +7,14 @@
   export let blocker: SquareSectionBlocker | null = null;
 </script>
 
-<a href="{blocker ? blocker.url : link}" class="wrapper">
+<a href="{blocker?.enabled ? blocker.url : link}" class="wrapper">
   <section>
-      <div class:blur={blocker}>
+      <div class:blur={blocker?.enabled}>
       <h2>{title}</h2>
       <p>{description}</p>
     </div>
 
-    {#if blocker}
+    {#if blocker?.enabled}
       <p class="blocker">{blocker.displayString}</p>
     {/if}
   </section>
