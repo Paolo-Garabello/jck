@@ -139,13 +139,13 @@ public class MainWebSocketServer extends WebSocketServer {
                         statement.execute("INSERT INTO messages(text, sender, recipient) VALUES('" + req.getContent().getMessage() + "', '" + tokens.get(conn).getPrivateUser().getId() + "', '" + req.getContent().getChat().substring(1) + "');");
                         user = tokens.get(conn);
                         while (user.hasNext()) {
-                            conn.send(mapper.writeValueAsString(new DirectMessage(message, user.getPrivateUser().getId(), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt(1))));
+                            conn.send(mapper.writeValueAsString(new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), user.getPrivateUser().getId(), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt(1))));
                             user = user.getNext();
                         }    
                         user = tokens.get(conn);
                         while (user.hasPrevious()) {
                             user = user.getPrevious();
-                            conn.send(mapper.writeValueAsString(new DirectMessage(message, user.getPrivateUser().getId(), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt(1))));
+                            conn.send(mapper.writeValueAsString(new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), user.getPrivateUser().getId(), Integer.valueOf(req.getContent().getChat().substring(1)), statement.executeQuery("SELECT last_insert_rowid()").getInt(1))));
                         }    
                     }
                     break;
@@ -155,7 +155,7 @@ public class MainWebSocketServer extends WebSocketServer {
                         statement.execute("INSERT INTO users(username, password) VALUES('" + req.getUserInfo().getUsername() + "', '" + req.getUserInfo().getPassword() + "');");
                         conn.send(mapper.writeValueAsString(new Response(true, 201)));
                     } catch(SQLException e) {
-                        conn.send(mapper.writeValueAsString(new Response(false, 409, "User already exists")));
+                        conn.send(mapper.writeValueAsString(new Response(false, 40, "User already exists")));
                     }
                     break;
                 
@@ -193,10 +193,9 @@ public class MainWebSocketServer extends WebSocketServer {
                 case "getChats": 
                     int userID = tokens.get(conn).getPrivateUser().getId();
                     String id = (req.getData() != null ? req.getData() : "=0");
-                    String query = "SELECT * FROM messages WHERE id>" + id + " AND " + userID + " IN (sender, recipient)";
-                    System.out.println(query);
-                    res = statement.executeQuery(query);
-                    conn.send(mapper.writeValueAsString(new Response(true, 206, mapper.writeValueAsString(new Messages(res)))));
+                    String username = statement.executeQuery("SELECT * FROM users WHERE id=" + id).getString(1);
+                    res = statement.executeQuery("SELECT * FROM messages WHERE id>" + id + " AND " + userID + " IN (sender, recipient)");
+                    conn.send(mapper.writeValueAsString(new Response(true, 206, new Messages(res, username))));
                     break;
                     
                 default:
