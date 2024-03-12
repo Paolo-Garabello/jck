@@ -10,7 +10,7 @@ public class Messages {
         ArrayList<DirectMessage> arr = new ArrayList<DirectMessage>();
         try {
             while (res.next()) {
-                arr.add(new DirectMessage(res.getString("text"), username, res.getInt("sender"), res.getInt("recipient"), res.getInt("id")));
+                arr.add(new DirectMessage(res.getString("text"), username, res.getString("username"), res.getInt("sender"), res.getInt("recipient"), res.getInt("id")));
             };
         } catch(SQLException e){
            e.printStackTrace();

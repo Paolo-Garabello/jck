@@ -190,11 +190,12 @@ public class MainWebSocketServer extends WebSocketServer {
                     }
                     break;
                 
-                case "getChats": 
+                case "getChats": //TODO modificare Messages
                     int userID = tokens.get(conn).getPrivateUser().getId();
                     String id = (req.getData() != null ? req.getData() : "=0");
                     String username = statement.executeQuery("SELECT * FROM users WHERE id=" + id).getString(1);
-                    res = statement.executeQuery("SELECT * FROM messages WHERE id>" + id + " AND " + userID + " IN (sender, recipient)");
+                    String query = "SELECT messages.*, username FROM users INNER JOIN messages WHERE messages.id>" + id + " AND " + userID + " IN (sender, recipient) AND messages.recipient = users.id";
+                    res = statement.executeQuery(query);
                     conn.send(mapper.writeValueAsString(new Response(true, 206, new Messages(res, username))));
                     break;
                     

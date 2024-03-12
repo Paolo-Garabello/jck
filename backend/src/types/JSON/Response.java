@@ -3,8 +3,8 @@ package types.JSON;
 public class Response {
     private boolean ok;
     private int statusCode;
-    private String message = null;
-    private Messages messages = null;
+    private String message;
+    private Messages messages;
 
     public Response(boolean ok, int statusCode){
         this.ok = ok;
