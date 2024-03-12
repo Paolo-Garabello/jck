@@ -3,6 +3,7 @@
   import { onMount, setContext } from 'svelte';
   import { Shadow } from 'svelte-loading-spinners';
   import { getNotificationsContext } from 'svelte-notifications';
+	import type { PrivateMessage } from '$lib/types/PrivateMessage';
 
   import MessageList from "./MessageList.svelte";
   import SendMessage from "./SendMessage.svelte";
@@ -10,8 +11,11 @@
   export let title: string;
   export let chat: string;
   export let websocket: WebSocket;
+  export let previousMessages: PrivateMessage[] | null = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
 
   const { addNotification } = getNotificationsContext();
+
+  let chatType = chat == 'public' ? chat : 'DM';
 
   let loading = true;
   let connected = false;
@@ -28,34 +32,29 @@
     });
   });
 
-  function handleSocket() {
-    loading = false;
-    connected = true;
+  websocket.onerror = () => {
+    console.log(`There was an error connecting to "${title}".`);
+    connected = false;
 
-    websocket.onerror = () => {
-      console.log(`There was an error connecting to "${title}".`);
-      connected = false;
+    addNotification({
+      text: 'Connection Error',
+      type: 'error',
+      position: 'bottom-right',
+      removeAfter: 3000
+    });
+  };
 
-      addNotification({
-        text: 'Connection Error',
-        type: 'error',
-        position: 'bottom-right',
-        removeAfter: 3000
-      });
-    };
+  websocket.onclose = () => {
+    console.log(`You've been disconnected from "${title}".`);
+    connected = false;
 
-    websocket.onclose = () => {
-      console.log(`You've been disconnected from "${title}".`);
-      connected = false;
-
-      addNotification({
-        text: 'Disconnected',
-        type: 'warning',
-        position: 'bottom-right',
-        removeAfter: 2000
-      });
-    };
-  }
+    addNotification({
+      text: 'Disconnected',
+      type: 'warning',
+      position: 'bottom-right',
+      removeAfter: 2000
+    });
+  };
 
   onMount(() => {
     connected = true;
@@ -71,6 +70,8 @@
     {#if !loading}
       <MessageList
         websocket={websocket}
+        chatType={chatType}
+        previousMessages={previousMessages}
       />
     {:else}
       <div class="loader">

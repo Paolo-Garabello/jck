@@ -4,11 +4,9 @@
 	import { slide } from 'svelte/transition';
 
   export let data: Message;
-  let MyUsername: string|null;
+  export let myUsername: string | null = null;
 
-  onMount(() => {
-    MyUsername = sessionStorage.getItem('public_username');
-  });
+  let MyUsername: string|null = myUsername ?? sessionStorage.getItem('public_username');
 
   function getFormattedDate(unix_timestamp: number) {
     let date = new Date(unix_timestamp);

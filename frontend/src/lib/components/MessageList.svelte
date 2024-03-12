@@ -1,47 +1,61 @@
 <script lang="ts">
-  import { onMount, setContext } from 'svelte';
-  import type { Message } from '$lib/types/Message.d.ts'
+  import { onMount, afterUpdate } from 'svelte';
+
+  import type { PrivateMessage } from '$lib/types/PrivateMessage';
+  import type { Message } from '$lib/types/Message';
+
   import MessageComponent from "./Message.svelte";
+  import PrivateMessageComponent from './PrivateMessage.svelte';
+	import { goto } from '$app/navigation';
 
   export let websocket: WebSocket;
+  export let chatType: string;
+  export let previousMessages: PrivateMessage[] | null = null;
 
-  let messages: Message[] = [];
+  let messages: (Message | PrivateMessage)[] = previousMessages ?? [];
 
-  setContext('websocket', websocket);
+  let myUsername = localStorage.getItem('user.username') ?? "";
 
-  function handleMessage(event: MessageEvent) {
-    const data = JSON.parse(event.data);
+  if(!myUsername) goto('/login');
 
-    if(data.username) {
-      sessionStorage.setItem('public_username', data.username);
-    } else {
+  websocket.addEventListener('message', () => {
+    let msg = sessionStorage.getItem('websocket.message');
+    if(!msg) return;
+
+    const data = JSON.parse(msg);
+
+    if(data.chat && data.chat == chatType) {
       messages = [...messages, data];
-    }
-
-  }
-
-
-  onMount(() => {
-    if (websocket) {
-      websocket.onmessage = handleMessage;
+      sessionStorage.removeItem('websocket.message');
     }
   });
 
-  $: {
-    if (websocket) {
-      websocket.onmessage = handleMessage;
-    }
-  }
+  let listElement: HTMLElement;
+  const scrollToBottom = () => {
+    listElement.scrollTop = listElement.scrollHeight;
+  };
 
+  onMount(() => scrollToBottom());
+  afterUpdate(() => scrollToBottom());
 </script>
 
-<ul>
+<ul bind:this={listElement}>
   {#each messages as message}
-    <MessageComponent
-      data={message}
-    />
+
+    {#if message.chat === "public"}
+      <MessageComponent
+        data={message}
+      />
+    {:else}
+    <PrivateMessageComponent
+        data={message}
+        myUsername={myUsername}
+      />
+    {/if}
+
   {/each}
 </ul>
+
 
 <style lang="scss">
   ul {

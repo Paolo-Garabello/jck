@@ -59,6 +59,8 @@
 
         if(data.statusCode === 204) {
           localStorage.setItem('logged', 'true');
+          localStorage.setItem('user.id', data.id);
+          localStorage.setItem('user.username', data.username);
           sessionStorage.removeItem('websocket.message');
           goto('/dm');
         }

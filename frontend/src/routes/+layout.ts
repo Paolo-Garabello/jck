@@ -31,8 +31,9 @@ export const load = ({ params }) => {
     if(!msg) return;
 
     const data = JSON.parse(msg);
+    console.log(data);
 
-    if(data.username) {
+    if(data.username && !data.chat && !data.id) {
       sessionStorage.setItem('public_username', data.username);
       sessionStorage.removeItem('websocket.message');
     }
