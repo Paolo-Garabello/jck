@@ -1,7 +1,6 @@
-export interface PrivateMessage {
-    message: string;
-    chat: string;
-    date: number;
+import type { Message } from "./Message";
+
+export interface PrivateMessage extends Message {
     recipient: number;
     id: number;
     sender: number;
