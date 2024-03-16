@@ -1,5 +1,5 @@
 export interface WebSocketResponse {
     ok: boolean;
-    stausCode: number;
+    statusCode: number;
     data: object|null;
 }
