@@ -3,10 +3,6 @@
 
   export let data;
   let websocket: WebSocket = data.websocket;
-
-  function onSuccess() {
-
-  }
 </script>
 
 <AccessForm

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+	import type { WebSocketResponse } from '$lib/types/WebSocketResponse';
   import { getNotificationsContext } from 'svelte-notifications';
 
   export let requestType: string;
@@ -10,78 +11,56 @@
   let username: string = "";
   let password: string = "";
 
-  sessionStorage.setItem('expected.message', requestType);
-
   let upperRequestType = requestType.charAt(0).toUpperCase() + requestType.slice(1);
 
   const { addNotification } = getNotificationsContext();
 
   websocket.addEventListener('message', () => {
     let msg = sessionStorage.getItem('websocket.message');
-    let req = sessionStorage.getItem('expected.message');
 
-    if(!msg || !req) return;
+    if(!msg) return;
 
-    const data = JSON.parse(msg);
+    const wsdata: WebSocketResponse = JSON.parse(msg);
 
-    if(req === 'signup') {
-      if(data.ok) {
+    if(wsdata.statusCode === 200) { // Successfull login
+      sessionStorage.removeItem('websocket.message');
 
-        if(data.statusCode === 201) {
-          sessionStorage.removeItem('websocket.message');
+      addNotification({
+        text: 'Login Successful',
+        type: 'success',
+        position: 'bottom-right',
+        removeAfter: 1000
+      });
 
-          addNotification({
-            text: "Signup Successfull",
-            type: 'success',
-            position: 'bottom-right',
-            removeAfter: 4000
-          });
-        }
+      localStorage.setItem('user', JSON.stringify({
+        username: wsdata.data.username,
+        id: wsdata.data.id
+      }));
 
-      } else {
-
-        if(data.statusCode === 409) {
-          sessionStorage.removeItem('websocket.message');
-
-          addNotification({
-            text: data.message,
-            type: 'error',
-            position: 'bottom-right',
-            removeAfter: 4000
-          });
-        }
-
-      }
+      goto('/dm');
     }
 
-    if(req === 'login') {
-      if(data.ok) {
+    if(wsdata.statusCode === 401 || wsdata.statusCode === 409) { // Unsuccessful login|signup
+      sessionStorage.removeItem('websocket.message');
 
-        if(data.statusCode === 204) {
-          localStorage.setItem('logged', 'true');
-          localStorage.setItem('user.id', data.id);
-          localStorage.setItem('user.username', data.username);
-          sessionStorage.removeItem('websocket.message');
-          goto('/dm');
-        }
-
-      } else {
-
-        if(data.statusCode === 401) {
-          sessionStorage.removeItem('websocket.message');
-
-          addNotification({
-            text: data.message,
-            type: 'error',
-            position: 'bottom-right',
-            removeAfter: 4000
-          });
-        }
-
-      }
-
+      addNotification({
+        text: wsdata.data.error,
+        type: 'error',
+        position: 'bottom-right',
+        removeAfter: 4000
+      });
     }
 
+    if(wsdata.statusCode === 201) { // Signup Successfull
+      sessionStorage.removeItem('websocket.message');
+
+      addNotification({
+        text: wsdata.data.message,
+        type: 'success',
+        position: 'bottom-right',
+        removeAfter: 3000
+      });
+    }
   });
 
   function handleSubmit(event: Event) {
