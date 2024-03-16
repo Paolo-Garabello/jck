@@ -1,40 +1,30 @@
 package types.JSON;
 
-public class Response {
+public class Response<T> {
     private boolean ok;
     private int statusCode;
-    private String message;
-    private Messages messages;
+    private T data;
 
     public Response(boolean ok, int statusCode){
         this.ok = ok;
         this.statusCode = statusCode;
     }
 
-    public Response(boolean ok, int statusCode, String message){
+    public Response(boolean ok, int statusCode, T data){
         this(ok, statusCode);
-        this.message = message;
-    }
-
-    public Response(boolean ok, int statusCode, Messages messages){
-        this(ok, statusCode);
-        this.messages = messages;
+        this.data = data;
     }
 
     public int getStatusCode() {
         return statusCode;
     }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Messages getMessages() {
-        return messages;
-    }
     
     public boolean getOk() {
         return this.ok;
+    }
+
+    public T getData() {
+        return data;
     }
 
     public void setOk(boolean ok) {
@@ -45,11 +35,7 @@ public class Response {
         this.statusCode = statusCode;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public void setMessages(Messages messages) {
-        this.messages = messages;
+    public void setData(T data) {
+        this.data = data;
     }
 }
