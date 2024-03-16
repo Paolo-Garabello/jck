@@ -1,4 +1,5 @@
 import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
+import type { WebSocketResponse } from '$lib/types/WebSocketResponse.js';
 
 export const ssr = false;
 
@@ -30,16 +31,14 @@ export const load = ({ params }) => {
 
     if(!msg) return;
 
-    const data = JSON.parse(msg);
-    console.log(data);
+    const wsdata: WebSocketResponse = JSON.parse(msg);
+    console.log(wsdata);
 
-    if(data.username && !data.chat && !data.id) {
-      sessionStorage.setItem('public_username', data.username);
-      sessionStorage.removeItem('websocket.message');
-    }
-
-    if(data.statusCode === 205) { // Expecting a token from the server or wrong token was sent
-      localStorage.setItem('auth_token', data.message);
+    if(wsdata.statusCode === 205) { // Expecting a token from the server or wrong token was sent
+      if(!wsdata.ok) { // The token is not correct
+        localStorage.setItem('auth_token', wsdata.data.token);
+        sessionStorage.setItem('public_username', wsdata.data.publicUsername);
+      }
       sessionStorage.removeItem('websocket.message');
     }
 
