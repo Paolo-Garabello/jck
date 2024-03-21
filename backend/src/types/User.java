@@ -7,8 +7,6 @@ public class User {
     private String token;
     private String publicName;
     private PrivateUser privateUser;
-    private User next = null;
-    private User previous = null;
 
     public User(String token, String publicName, ResultSet privateUser) {
         this.token = token;
@@ -30,35 +28,9 @@ public class User {
         this.token = user.getToken();
         this.privateUser = user.getPrivateUser();
         this.publicName = user.getPublicName();
-        user.setNext(this);
-        this.previous = user;
         if(user.getPrivateUser() != null) {
             this.privateUser = user.getPrivateUser();
         }
-    }
-
-    public boolean hasNext() {
-        return this.next != null;
-    }
-
-    public boolean hasPrevious() {
-        return this.previous != null;
-    }
-
-    public User getNext() {
-        return next;
-    }
-
-    public User getPrevious() {
-        return previous;
-    }
-
-    public void setNext(User next) {
-        this.next = next;
-    }
-
-    public void setPrevious(User previous) {
-        this.previous = previous;
     }
 
     public PrivateUser getPrivateUser() {

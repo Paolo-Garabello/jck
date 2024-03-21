@@ -6,11 +6,11 @@ import java.util.ArrayList;
 public class Messages {
     private DirectMessage[] messages;
 
-    public Messages(ResultSet res, String username) {
+    public Messages(ResultSet res) {
         ArrayList<DirectMessage> arr = new ArrayList<DirectMessage>();
         try {
             while (res.next()) {
-                arr.add(new DirectMessage(res.getString("text"), username, res.getString("username"), res.getInt("sender"), res.getInt("recipient"), res.getInt("id")));
+                arr.add(new DirectMessage(res.getString(2), res.getString(6), res.getString(5), res.getInt(3), res.getInt(4), res.getInt(1)));
             };
         } catch(SQLException e){
            e.printStackTrace();
@@ -23,4 +23,12 @@ public class Messages {
         return messages;
     }
     
+    @Override
+    public String toString() {
+        String str = "";
+        for(DirectMessage msg : messages) {
+            str += msg + "\n";
+        }
+        return str;
+    }
 }

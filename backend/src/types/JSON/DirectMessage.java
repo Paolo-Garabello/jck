@@ -83,4 +83,8 @@ public class DirectMessage extends Message{
         this.sender = sender;
     }
 
+    @Override
+    public String toString() {
+        return "message: " + this.getMessage() + " senderUsername: " + this.username + " sender: " +this.sender + " id:" + this.id + " recipient:" + this.recipient + " recipientUsername: " + this.recipientUsername;
+    }
 }
