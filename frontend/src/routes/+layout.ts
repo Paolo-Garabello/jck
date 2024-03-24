@@ -35,10 +35,8 @@ export const load = ({ params }) => {
     console.log(wsdata);
 
     if(wsdata.statusCode === 205) { // Expecting a token from the server or wrong token was sent
-      if(!wsdata.ok) { // The token is not correct
-        localStorage.setItem('auth_token', wsdata.data.token);
-        sessionStorage.setItem('public_username', wsdata.data.publicUsername);
-      }
+      localStorage.setItem('auth_token', wsdata.data.token);
+      sessionStorage.setItem('public_username', wsdata.data.publicUsername);
       sessionStorage.removeItem('websocket.message');
     }
 

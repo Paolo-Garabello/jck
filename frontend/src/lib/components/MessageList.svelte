@@ -1,31 +1,37 @@
 <script lang="ts">
   import { onMount, afterUpdate } from 'svelte';
-
   import type { PrivateMessage } from '$lib/types/PrivateMessage';
-  import type { Message } from '$lib/types/Message';
-
   import MessageComponent from "./Message.svelte";
   import PrivateMessageComponent from './PrivateMessage.svelte';
 	import { goto } from '$app/navigation';
+	import type { WebSocketResponse } from '$lib/types/WebSocketResponse';
+	import type { PublicMessage } from '$lib/types/PublicMessage';
 
   export let websocket: WebSocket;
   export let chatType: string;
   export let previousMessages: PrivateMessage[] | null = null;
 
-  let messages: (Message | PrivateMessage)[] = previousMessages ?? [];
+  let messages: (PublicMessage | PrivateMessage)[] = previousMessages ?? [];
 
-  let myUsername = localStorage.getItem('user.username') ?? "";
+  let userData = localStorage.getItem('user');
 
-  if(!myUsername) goto('/login');
+  if(!userData && chatType === 'DM') goto('/login');
+
+  let user = JSON.parse(userData ?? '{}');
 
   websocket.addEventListener('message', () => {
     let msg = sessionStorage.getItem('websocket.message');
     if(!msg) return;
 
-    const data = JSON.parse(msg);
+    const wsdata: WebSocketResponse = JSON.parse(msg);
 
-    if(data.chat && data.chat == chatType) {
-      messages = [...messages, data];
+    if((wsdata.statusCode === 202 || wsdata.statusCode === 206) && wsdata.data.chat === chatType) {
+      messages = [...messages, wsdata.data];
+      if(chatType === 'DM' && wsdata.statusCode === 202) {
+        let prev = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
+        prev.push(wsdata.data);
+        localStorage.setItem('dmMessages', JSON.stringify(prev));
+      }
       sessionStorage.removeItem('websocket.message');
     }
   });
@@ -37,6 +43,14 @@
 
   onMount(() => scrollToBottom());
   afterUpdate(() => scrollToBottom());
+
+  function toPrivateMessage(msg: PublicMessage | PrivateMessage): PrivateMessage {
+    return <PrivateMessage>msg;
+  }
+
+  function toPublicMessage(msg: PublicMessage | PrivateMessage): PublicMessage {
+    return <PublicMessage>msg;
+  }
 </script>
 
 <ul bind:this={listElement}>
@@ -44,12 +58,12 @@
 
     {#if message.chat === "public"}
       <MessageComponent
-        data={message}
+        data={toPublicMessage(message)}
       />
     {:else}
-    <PrivateMessageComponent
-        data={message}
-        myUsername={myUsername}
+      <PrivateMessageComponent
+        data={toPrivateMessage(message)}
+        myUsername={user.username}
       />
     {/if}
 

@@ -8,9 +8,19 @@
 
   const messages = writable<PrivateMessage[]>([]);
 
-  const userID: number = parseInt(localStorage.getItem('user.id') || '-1', 10);
+  let prevMessages: PrivateMessage[] = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
 
-  if(userID == -1) goto('/login');
+  if(prevMessages) {
+    messages.update(existingMessages => [...existingMessages, ...prevMessages]);
+  }
+
+  const user: string|null = localStorage.getItem('user');
+
+  if(!user) goto('/login');
+
+  let userData = JSON.parse(user ?? "");
+
+  let userID = userData.id;
 
   const chats = derived(messages, ($messages) => {
     return $messages.filter((msg, index, self) => {
@@ -28,7 +38,7 @@
 
     let data = JSON.parse(msg);
     if(data.statusCode === 206) {
-      messages.update(existingMessages => [...existingMessages, ...data.messages.messages]);
+      messages.update(existingMessages => [...existingMessages, ...data.data.messages]);
 
       const messagesValue = messages.subscribe(value => {
         localStorage.setItem('dmMessages', JSON.stringify(value));

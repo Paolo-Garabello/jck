@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { fade } from "svelte/transition";
-  import { onMount, setContext } from 'svelte';
-  import { Shadow } from 'svelte-loading-spinners';
   import { getNotificationsContext } from 'svelte-notifications';
 	import type { PrivateMessage } from '$lib/types/PrivateMessage';
 
@@ -17,10 +15,9 @@
 
   let chatType = chat == 'public' ? chat : 'DM';
 
-  let loading = true;
   let connected = false;
 
-  websocket.addEventListener('open', (event) => {
+  function wsOpen() {
     console.log(`Connected successfully to "${title}".`);
     connected = true;
 
@@ -30,7 +27,9 @@
       position: 'bottom-right',
       removeAfter: 3000
     });
-  });
+  }
+
+  websocket.readyState === WebSocket.OPEN ? wsOpen() : websocket.addEventListener('open', wsOpen);
 
   websocket.onerror = () => {
     console.log(`There was an error connecting to "${title}".`);
@@ -55,29 +54,17 @@
       removeAfter: 2000
     });
   };
-
-  onMount(() => {
-    connected = true;
-    loading = false;
-  });
-
 </script>
 
 <div class="wrapper" transition:fade>
   <h1>{title}</h1>
 
   <div class="messages">
-    {#if !loading}
-      <MessageList
-        websocket={websocket}
-        chatType={chatType}
-        previousMessages={previousMessages}
-      />
-    {:else}
-      <div class="loader">
-        <Shadow />
-      </div>
-    {/if}
+    <MessageList
+      websocket={websocket}
+      chatType={chatType}
+      previousMessages={chatType === 'DM' ? previousMessages : null}
+    />
   </div>
 
   <div class="send-message">
@@ -111,13 +98,6 @@
       height: 70vh;
       width: 95%;
       position: relative;
-
-      .loader {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%,-50%);
-      }
     }
 
     .send-message {

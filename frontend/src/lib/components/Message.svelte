@@ -1,9 +1,8 @@
 <script lang="ts">
-  import type { Message } from '$lib/types/Message';
-	import { onMount } from 'svelte';
+	import type { PublicMessage } from '$lib/types/PublicMessage';
 	import { slide } from 'svelte/transition';
 
-  export let data: Message;
+  export let data: PublicMessage;
   export let myUsername: string | null = null;
 
   let MyUsername: string|null = myUsername ?? sessionStorage.getItem('public_username');
@@ -14,7 +13,7 @@
     return date.getHours() + ':' + minutes.substring(minutes.length - 2);
   }
 
-  </script>
+</script>
 
 {#if data.message}
   <li
