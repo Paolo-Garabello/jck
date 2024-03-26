@@ -56,7 +56,7 @@ public class MainWebSocketServer extends WebSocketServer {
         System.out.println("New connection: " + conn.getRemoteSocketAddress());
     }
 
-    @Override
+    @Override //TODO fixare lo statement
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println("Closed connection: " + conn.getRemoteSocketAddress());
         try {
@@ -89,11 +89,12 @@ public class MainWebSocketServer extends WebSocketServer {
                         this.broadcast(mapper.writeValueAsString(new Response<PublicMessage>(true, 202, new PublicMessage(MessageProcesser.process(req.getContent().getMessage()), tokens.get(conn).getPublicName()))));
                     } else if(req.getContent().getChat().indexOf('@') == 0) {
                         System.out.println("Received direct message from " + conn.getRemoteSocketAddress() + ": " + req.getContent().getMessage());
-                        statement.execute("INSERT INTO messages(text, sender, recipient) VALUES('" + req.getContent().getMessage() + "', '" + tokens.get(conn).getPrivateUser().getId() + "', '" + req.getContent().getChat().substring(1) + "');");
+                        statement.execute("INSERT INTO messages(text, sender, recipient) VALUES('" + MessageProcesser.process(req.getContent().getMessage()) + "', '" + tokens.get(conn).getPrivateUser().getId() + "', '" + req.getContent().getChat().substring(1) + "');");
                         user = tokens.get(conn);
                         Integer recipientUser = Integer.valueOf(req.getContent().getChat().substring(1));
                         conn.send(mapper.writeValueAsString(new Response<DirectMessage>(true, 202, new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), user.getPrivateUser().getId(), recipientUser, statement.executeQuery("SELECT last_insert_rowid()").getInt(1))))); 
-                        usernames.get(recipientUser).send(mapper.writeValueAsString(new Response<DirectMessage>(true, 202, new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), user.getPrivateUser().getId(), recipientUser, statement.executeQuery("SELECT last_insert_rowid()").getInt(1)))));
+                        if(usernames.get(recipientUser) != null && (tokens.get(conn).getPrivateUser().getId() != Integer.valueOf(req.getContent().getChat().substring(1))))
+                            usernames.get(recipientUser).send(mapper.writeValueAsString(new Response<DirectMessage>(true, 202, new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), user.getPrivateUser().getId(), recipientUser, statement.executeQuery("SELECT last_insert_rowid()").getInt(1)))));
                     }
                     break;
 
@@ -118,7 +119,7 @@ public class MainWebSocketServer extends WebSocketServer {
                     }
                     break;
 
-                case "auth":
+                case "auth": //TODO true per loggato false per not
                     if(req.getData() == null) {
                         String token = Hashing.createToken();
                         tokens.put(conn, new User(token, randomUsername()));
@@ -159,12 +160,6 @@ public class MainWebSocketServer extends WebSocketServer {
                     conn.send(mapper.writeValueAsString(new Response<Error>(false, 400, new Error("Bad request"))));
                     break;
             }
-        // } catch(NullPointerException e) {
-        //     try {
-        //         conn.send(mapper.writeValueAsString(new Response(false, 404, "User not found")));
-        //     } catch(JsonProcessingException ex) {
-        //         ex.printStackTrace();
-        //     }
         } catch(Exception e) {
             e.printStackTrace();
         }

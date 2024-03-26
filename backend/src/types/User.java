@@ -7,6 +7,7 @@ public class User {
     private String token;
     private String publicName;
     private PrivateUser privateUser;
+    private long closedAt;
 
     public User(String token, String publicName, ResultSet privateUser) {
         this.token = token;
@@ -45,6 +46,10 @@ public class User {
         return token;
     }
 
+    public long getClosedAt() {
+        return closedAt;
+    }
+
     public void setPrivateUser(PrivateUser privateUser) {
         this.privateUser = new PrivateUser(privateUser.getId(), privateUser.getUsername());
     }
@@ -63,6 +68,10 @@ public class User {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void setClosedAt(long closedAt) {
+        this.closedAt = closedAt;
     }
 
     @Override
