@@ -15,12 +15,15 @@ import com.google.common.collect.HashBiMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class MainWebSocketServer extends WebSocketServer {
 
     private BiMap<WebSocket, User> tokens = HashBiMap.create();
     private HashMap<Integer, WebSocket> usernames = new HashMap<Integer, WebSocket>();
+    private ArrayList<WebSocket> toBeRemoved = new ArrayList<WebSocket>();
     private ObjectMapper mapper = new ObjectMapper();
     private static int id = 0;
     private Connection connection = null;
@@ -55,14 +58,20 @@ public class MainWebSocketServer extends WebSocketServer {
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         System.out.println("New connection: " + conn.getRemoteSocketAddress());
     }
-
-    @Override //TODO fixare lo statement
+ 
+    @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println("Closed connection: " + conn.getRemoteSocketAddress());
-        try {
-            statement.close();
-        } catch(SQLException e) {
-            e.printStackTrace();
+        
+        tokens.get(conn).setClosedAt(System.currentTimeMillis());
+        toBeRemoved.add(conn);
+        Iterator<WebSocket> i = toBeRemoved.iterator();
+        while (i.hasNext()) {
+            WebSocket t = i.next();
+            if(tokens.get(t) != null && t.isClosed() && (System.currentTimeMillis() - tokens.get(t).getClosedAt() >= 1800000)) {
+                tokens.remove(t);
+                i.remove();
+            }
         }
     }
 
@@ -83,7 +92,7 @@ public class MainWebSocketServer extends WebSocketServer {
             Request req = mapper.readValue(message, Request.class);
 
             switch (req.getRequest()) {
-                case "sendMessage":
+                case "sendMessage": // 202 da recipientusername = null
                     if(req.getContent().getChat().equals("public")) {    
                         System.out.println("Received public message from " + conn.getRemoteSocketAddress() + ": " + req.getContent().getMessage());
                         this.broadcast(mapper.writeValueAsString(new Response<PublicMessage>(true, 202, new PublicMessage(MessageProcesser.process(req.getContent().getMessage()), tokens.get(conn).getPublicName()))));
@@ -123,21 +132,22 @@ public class MainWebSocketServer extends WebSocketServer {
                     if(req.getData() == null) {
                         String token = Hashing.createToken();
                         tokens.put(conn, new User(token, randomUsername()));
-                        conn.send(mapper.writeValueAsString(new Response<AuthResponse>(true, 205, new AuthResponse(token, tokens.get(conn).getPublicName()))));
+                        conn.send(mapper.writeValueAsString(new Response<AuthResponse>(tokens.get(conn).getPrivateUser() != null ? true : false, 205, new AuthResponse(token, tokens.get(conn).getPublicName()))));
                     } else { 
                         if((user = searchForToken(req.getData())) != null) {
+                            tokens.inverse().remove(user);
                             tokens.put(conn, new User(user));
                             if(user.getPrivateUser() != null)
                                 usernames.put(tokens.get(conn).getPrivateUser().getId(), conn);
                             
-                            conn.send(mapper.writeValueAsString(new Response<AuthResponse>(true, 205, new AuthResponse(tokens.get(conn).getToken(), tokens.get(conn).getPublicName()))));
+                            conn.send(mapper.writeValueAsString(new Response<AuthResponse>(tokens.get(conn).getPrivateUser() != null ? true : false, 205, new AuthResponse(tokens.get(conn).getToken(), tokens.get(conn).getPublicName()))));
                         } else {
                             String token = Hashing.createToken();
                             tokens.put(conn, new User(token, randomUsername()));
                             if(tokens.get(conn).getPrivateUser() != null)
                                 usernames.put(tokens.get(conn).getPrivateUser().getId(), conn);
                             
-                            conn.send(mapper.writeValueAsString(new Response<AuthResponse>(false, 205, new AuthResponse(token, tokens.get(conn).getPublicName()))));
+                            conn.send(mapper.writeValueAsString(new Response<AuthResponse>(tokens.get(conn).getPrivateUser() != null ? true : false, 205, new AuthResponse(token, tokens.get(conn).getPublicName()))));
                         }
                     }
                     break;
@@ -169,6 +179,7 @@ public class MainWebSocketServer extends WebSocketServer {
     public void onError(WebSocket conn, Exception ex) {
         if (conn != null) {
             System.err.println("Error on connection " + conn.getRemoteSocketAddress() + ": " + ex);
+            ex.printStackTrace();
         } else {
             System.err.println("Error on connection: " + ex);
         }
