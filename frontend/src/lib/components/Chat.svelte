@@ -9,7 +9,8 @@
   export let title: string;
   export let chat: string;
   export let websocket: WebSocket;
-  export let previousMessages: PrivateMessage[] | null = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
+
+  let previousMessages: PrivateMessage[] = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
 
   const { addNotification } = getNotificationsContext();
 
@@ -63,6 +64,7 @@
     <MessageList
       websocket={websocket}
       chatType={chatType}
+      chatID={chat !== 'public' ? parseInt(chat.substring(1)) : null}
       previousMessages={chatType === 'DM' ? previousMessages : null}
     />
   </div>
@@ -95,8 +97,10 @@
     }
 
     .messages {
-      height: 70vh;
+      height: 75%;
       width: 95%;
+      overflow-y: scroll;
+      overflow-x: hidden;
       position: relative;
     }
 

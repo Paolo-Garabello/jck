@@ -1,8 +1,15 @@
 <script lang="ts">
   import Chat from "$lib/components/ChatWrapper.svelte";
   import EnableChat from "$lib/components/EnableChat.svelte";
+  import type { PrivateMessage } from '$lib/types/PrivateMessage.d.ts';
 
   export let data;
+
+  const dmMessages: PrivateMessage[] = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
+
+  function getUsernameFromId(id: number): string {
+    return dmMessages.find(m => m.id === id)?.username ?? "id: " + id.toString();
+  }
 
   let websocket: WebSocket = data.websocket;
 </script>
@@ -16,7 +23,7 @@
   />
 
   <Chat
-    title={data.id}
+    title={getUsernameFromId(parseInt(data.id))}
     websocket={websocket}
     chat="@{data.id}"
   />

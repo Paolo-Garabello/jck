@@ -9,15 +9,24 @@
 
   export let websocket: WebSocket;
   export let chatType: string;
+  export let chatID: number|null = null;
   export let previousMessages: PrivateMessage[] | null = null;
-
-  let messages: (PublicMessage | PrivateMessage)[] = previousMessages ?? [];
 
   let userData = localStorage.getItem('user');
 
   if(!userData && chatType === 'DM') goto('/login');
 
   let user = JSON.parse(userData ?? '{}');
+
+  if(previousMessages) {
+    previousMessages = previousMessages.filter(m => {
+      return (m.sender == user.id && m.recipient === chatID) || (m.recipient == user.id && m.sender === chatID);
+    });
+  }
+
+  let messages: (PublicMessage | PrivateMessage)[] = previousMessages ?? [];
+
+
 
   websocket.addEventListener('message', () => {
     let msg = sessionStorage.getItem('websocket.message');
@@ -79,5 +88,6 @@
     overflow-x: hidden;
     overflow-y: scroll;
     padding-left: 0;
+    margin: 0;
   }
 </style>

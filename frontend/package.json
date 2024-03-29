@@ -34,7 +34,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"svelte-loading-spinners": "^0.3.4",
 		"svelte-notifications": "^0.9.98"
 	}
 }

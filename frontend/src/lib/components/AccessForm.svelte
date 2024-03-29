@@ -37,6 +37,8 @@
         id: wsdata.data.id
       }));
 
+      localStorage.setItem('logged', 'true');
+
       goto('/dm');
     }
 

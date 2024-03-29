@@ -1,7 +1,17 @@
 <script lang="ts">
   import SquareSection from '$lib/components/SquareSection.svelte';
 
+  export let data;
+
   let logged: boolean = localStorage.getItem('logged') == 'true';
+
+  if(!logged) {
+    data.websocket.addEventListener('message', (event) => {
+      if(event.data.statusCode === 205 && event.data.ok) {
+        logged = true;
+      }
+    })
+  }
 </script>
 
 <header>

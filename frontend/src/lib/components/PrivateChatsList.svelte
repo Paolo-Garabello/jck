@@ -10,9 +10,13 @@
 
   let prevMessages: PrivateMessage[] = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
 
+  let highestId: number | null = null;
+
   if(prevMessages) {
+    highestId = prevMessages.length === 0 ? null : prevMessages.reduce((prev, curr) => (curr.id > prev.id ? curr : prev)).id;
     messages.update(existingMessages => [...existingMessages, ...prevMessages]);
   }
+
 
   const user: string|null = localStorage.getItem('user');
 
@@ -24,11 +28,10 @@
 
   const chats = derived(messages, ($messages) => {
     return $messages.filter((msg, index, self) => {
-      if (userID === msg.recipient) {
-        return self.findLastIndex(m => m.sender === msg.sender || (m.recipient == msg.sender && m.sender === msg.recipient)) === index;
-      } else {
-        return self.findLastIndex(m => m.recipient === msg.recipient) === index;
-      }
+      return self.findLastIndex(m =>
+        (m.sender === msg.sender && m.recipient === msg.recipient) ||
+        (m.sender === msg.recipient && m.recipient === msg.sender)
+      ) === index;
     });
   });
 
@@ -46,11 +49,11 @@
     }
   });
 
-
   function sendWebSocketRequest() {
-    if (websocket.readyState === WebSocket.OPEN) {
-      websocket.send(JSON.stringify({ request: 'getChats' }));
-    }
+    websocket.send(JSON.stringify({
+      request: 'getChats',
+      data: highestId
+    }));
   }
 
   if (websocket.readyState === WebSocket.OPEN) {
@@ -60,23 +63,39 @@
   }
 </script>
 
-<h1>Private Chats</h1>
+<div>
+  {#if $messages.length > 0}
+    <ul>
+      {#each $chats.slice().reverse() as msg}
+        <UserChat
+          userID={userID}
+          data={msg}
+        />
+      {/each}
+    </ul>
 
-{#if $messages}
-  <ul>
-    {#each $chats.slice().reverse() as msg}
-      <UserChat
-        userID={userID}
-        data={msg}
-      />
-    {/each}
-  </ul>
-{/if}
+  {:else}
+    <div class="not-found">
+      <h3>No chats where found</h3>
+      <a href="/dm/{userID - 1}">Click here to Start a Conversation</a>
+    </div>
+  {/if}
+</div>
 
 <style lang="scss">
-  ul {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  div {
+    ul {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .not-found {
+      text-align: center;
+
+      a {
+        color: var(--copy);
+      }
+    }
   }
 </style>
