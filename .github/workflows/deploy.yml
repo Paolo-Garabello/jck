@@ -1,9 +1,11 @@
-name: Deploy to GitHub Pages
+name: Deploy Frontend to GitHub Pages
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'
 
 jobs:
   deploy:
@@ -14,21 +16,21 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: npm
+          # cache: npm
 
       - name: Install dependencies
-        run: npm i --frozen-lockfile
+        run: npm --prefix frontend/ i --frozen-lockfile
 
       - name: Build website
-        run: npm run build
+        run: npm --prefix frontend/ run build
 
       # - name: Create CNAME file
-      #   run: echo "example.com" > ./build/CNAME
+      #   run: echo "jck.racca.me" > ./build/CNAME
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          publish_dir: ./frontend/build
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
