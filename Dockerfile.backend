@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY backend /app
 
-RUN apk add --no-cache build-base openjdk11 sqlite
+RUN apk add --no-cache make openjdk11 sqlite
 
 RUN make
 

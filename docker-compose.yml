@@ -5,11 +5,13 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     ports:
-      - "8888:8888"
+      - "3001:8887"
 
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
     ports:
-      - "8887:8887"
+      - "3000:5173"
+    depends_on:
+      - backend

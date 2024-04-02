@@ -25,8 +25,8 @@ run:
 
 clean:
 	$(RM) -r $(BIN_DIR)/
-	
+
 dbclean:
 	rm -f $(DB_FILE)
 
-.PHONY: build run clean
+.PHONY: build run clean dbclean

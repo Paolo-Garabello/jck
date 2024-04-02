@@ -4,8 +4,10 @@ WORKDIR /app
 
 COPY frontend /app
 
-RUN npm install && npm run build
+RUN npm install
 
-EXPOSE 8887
+RUN test -e /app/.env || cp /app/.env.example /app/.env
 
-CMD ["npm", "run", "preview", "--", "--host", "--port", "8887"]
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host"]
