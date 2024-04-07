@@ -20,7 +20,11 @@ jobs:
           distribution: 'adopt'
 
       - name: Build Javadoc
-        run: make javadoc
+        run: |
+          cd backend
+          make javadoc
+          mkdir docs/javadoc
+          mv docs/* docs/javadoc
 
       - name: Deploy Javadoc to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

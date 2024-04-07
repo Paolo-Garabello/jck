@@ -19,6 +19,7 @@ open:
 	echo "Please open http://localhost:3000 manually."
 endif
 
-stop: docker-compose stop
+stop:
+	docker-compose stop
 
 .PHONY: all build run open stop
