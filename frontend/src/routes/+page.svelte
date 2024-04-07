@@ -28,7 +28,7 @@
 
   <SquareSection
     title="Private Chats"
-    description="Encrypted chats with your friends"
+    description="Chat with your friends"
     link="/dm"
     blocker= {{
       enabled: !logged,
