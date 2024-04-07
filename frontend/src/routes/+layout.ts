@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
+import { heehee } from '$lib/helpers/heehee';
 import type { WebSocketResponse } from '$lib/types/WebSocketResponse.js';
 
 export const ssr = false;
@@ -47,6 +48,12 @@ export const load = () => {
       localStorage.setItem('dmMessages', '[]');
       localStorage.setItem('user', '{}');
       goto('/login');
+    }
+
+    if(wsdata.statusCode === 202) {
+      if(!document.hasFocus()) {
+        heehee();
+      }
     }
 
   }
