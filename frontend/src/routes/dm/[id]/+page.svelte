@@ -8,7 +8,13 @@
   const dmMessages: PrivateMessage[] = JSON.parse(localStorage.getItem('dmMessages') ?? '[]');
 
   function getUsernameFromId(id: number): string {
-    return dmMessages.find(m => m.id === id)?.username ?? "id: " + id.toString();
+    const msg = dmMessages.find(m => m.recipient === id || m.sender === id);
+
+    if(!msg) {
+      return "id: " + id.toString();
+    }
+
+    return msg.sender !== id ? msg.recipientUsername : msg.username;
   }
 
   let websocket: WebSocket = data.websocket;

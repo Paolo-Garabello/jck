@@ -43,7 +43,7 @@
     if(data.statusCode === 206) {
       messages.update(existingMessages => [...existingMessages, ...data.data.messages]);
 
-      const messagesValue = messages.subscribe(value => {
+      messages.subscribe(value => {
         localStorage.setItem('dmMessages', JSON.stringify(value));
       });
     }
