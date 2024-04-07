@@ -1,1 +1,0 @@
-export const env={"PUBLIC_WEBSOCKET_URL":"ws://5.75.132.76:8888"}
