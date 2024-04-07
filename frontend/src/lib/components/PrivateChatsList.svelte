@@ -61,6 +61,10 @@
   } else {
     websocket.addEventListener('open', sendWebSocketRequest);
   }
+
+  function getRandomUserID() {
+    return userID + (userID % 2 === 0 ? -1 : +1);
+  }
 </script>
 
 <div>
@@ -77,7 +81,7 @@
   {:else}
     <div class="not-found">
       <h3>No chats where found</h3>
-      <a href="/dm/{userID - 1}">Click here to Start a Conversation</a>
+      <a href="/dm/{getRandomUserID()}">Click here to Start a Conversation with a random user</a>
     </div>
   {/if}
 </div>
