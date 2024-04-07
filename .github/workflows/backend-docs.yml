@@ -21,10 +21,12 @@ jobs:
 
       - name: Build Javadoc
         run: |
-          cd backend
-          make javadoc
-          mkdir docs/javadoc
-          mv docs/* docs/javadoc
+          tmp=$(mktemp -d) && \
+          cd backend && \
+          make javadoc && \
+          mv docs "$tmp" && \
+          mkdir -p docs/javadoc && \
+          mv $tmp/docs/* docs/javadoc
 
       - name: Deploy Javadoc to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
