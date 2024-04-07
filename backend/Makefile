@@ -5,9 +5,11 @@ DB_DIR := db
 
 JAVAC := javac
 JAVA := java
+JAVADOC := javadoc
 SQL := sqlite3
 DB_FILE := $(DB_DIR)/database.db
 DB_STRUCTURE := $(DB_DIR)/structure.sql
+DOC_DIR := docs
 CP := $(BIN_DIR):$(LIB_DIR)/*
 
 JAVA_FILES := $(shell find $(SRC_DIR) -name '*.java')
@@ -29,4 +31,8 @@ clean:
 dbclean:
 	rm -f $(DB_FILE)
 
-.PHONY: build run clean dbclean
+javadoc:
+	@echo "Generating Javadoc..."
+	@$(JAVADOC) -d $(DOC_DIR) -classpath $(CP) $(JAVA_FILES)
+
+.PHONY: build run clean dbclean javadoc
