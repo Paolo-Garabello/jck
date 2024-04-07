@@ -99,11 +99,13 @@ public class MainWebSocketServer extends WebSocketServer {
                     } else if(req.getContent().getChat().indexOf('@') == 0) {
                         System.out.println("Received direct message from " + conn.getRemoteSocketAddress() + ": " + req.getContent().getMessage());
                         statement.execute("INSERT INTO messages(text, sender, recipient) VALUES('" + MessageProcesser.process(req.getContent().getMessage()) + "', '" + tokens.get(conn).getPrivateUser().getId() + "', '" + req.getContent().getChat().substring(1) + "');");
+                        
                         user = tokens.get(conn);
                         Integer recipientUser = Integer.valueOf(req.getContent().getChat().substring(1));
-                        conn.send(mapper.writeValueAsString(new Response<DirectMessage>(true, 202, new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), user.getPrivateUser().getId(), recipientUser, statement.executeQuery("SELECT last_insert_rowid()").getInt(1))))); 
+                        String recipientusername = statement.executeQuery("SELECT username FROM users WHERE id=" + recipientUser + ";").getString(1);
+                        conn.send(mapper.writeValueAsString(new Response<DirectMessage>(true, 202, new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), recipientusername, user.getPrivateUser().getId(), recipientUser, statement.executeQuery("SELECT last_insert_rowid()").getInt(1))))); 
                         if(usernames.get(recipientUser) != null && (tokens.get(conn).getPrivateUser().getId() != Integer.valueOf(req.getContent().getChat().substring(1))))
-                            usernames.get(recipientUser).send(mapper.writeValueAsString(new Response<DirectMessage>(true, 202, new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), user.getPrivateUser().getId(), recipientUser, statement.executeQuery("SELECT last_insert_rowid()").getInt(1)))));
+                            usernames.get(recipientUser).send(mapper.writeValueAsString(new Response<DirectMessage>(true, 202, new DirectMessage(req.getContent().getMessage(), user.getPrivateUser().getUsername(), recipientusername, user.getPrivateUser().getId(), recipientUser, statement.executeQuery("SELECT last_insert_rowid()").getInt(1)))));
                     }
                     break;
 
