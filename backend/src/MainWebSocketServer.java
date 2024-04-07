@@ -127,7 +127,7 @@ public class MainWebSocketServer extends WebSocketServer {
 
                 case "signup":
                     try {
-                        statement.execute("INSERT INTO users(username, password) VALUES('" + req.getUserInfo().getUsername() + "', '" + req.getUserInfo().getPassword() + "');");
+                        statement.execute("INSERT INTO users(username, password) VALUES('" + req.getUserInfo().getUsername() + "', '" + Hashing.hash(req.getUserInfo().getPassword()) + "');");
                         conn.send(mapper.writeValueAsString(new Response<ResponseMessage>(true, 201, new ResponseMessage("Signup successfull"))));
                     } catch(SQLException e) {
                         conn.send(mapper.writeValueAsString(new Response<Error>(false, 409, new Error("User already exists"))));
@@ -135,7 +135,7 @@ public class MainWebSocketServer extends WebSocketServer {
                     break;
                 
                 case "login":
-                    res = statement.executeQuery("SELECT id, username FROM users WHERE username='" + req.getUserInfo().getUsername() + "'AND password='" + req.getUserInfo().getPassword() + "';");
+                    res = statement.executeQuery("SELECT id, username FROM users WHERE username='" + req.getUserInfo().getUsername() + "'AND password='" + Hashing.hash(req.getUserInfo().getPassword()) + "';");
                     if(res.getString("username") != null) {
                         conn.send(mapper.writeValueAsString(new Response<Logged>(true, 200, new Logged(res.getString("username"), res.getInt("id")))));
                         tokens.get(conn).setPrivateUser(res);
