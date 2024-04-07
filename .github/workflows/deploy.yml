@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy_backend_and_presentation:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,21 +20,22 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+          cache-dependency-path: presentation/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm --prefix presentation/ install --frozen-lockfile
+
+      - name: Build presentation
+        run: pnpm --prefix presentation/ build --base "/${{ github.event.repository.name }}/"
+
+      - name: Move Presentation
+        run: mv presentation/dist/ pages
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
           java-version: '17'
           distribution: 'adopt'
-
-      - name: Install dependencies
-        run: pnpm --prefix presentation/ install --frozen-lockfile
-
-      - name: Build presentation
-        run: pnpm --prefix presentation/ build --base ${{ github.event.repository.name }}
-
-      - name: Move Presentation
-        run: mv presentation/dist/ pages
 
       - name: Build Javadoc
         run: |
