@@ -2,7 +2,7 @@ import java.net.InetSocketAddress;
 
 public class App {
     public static void main(String[] args) {
-        int port = 8887; // Change port as needed
+        int port = 8888; // Change port as needed
         MainWebSocketServer server = new MainWebSocketServer(new InetSocketAddress(port));
         server.start();
         System.out.println("WebSocket server started on port " + port);
