@@ -1,0 +1,54 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_backend_and_presentation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install pnpm
+        run: curl -L https://unpkg.com/@pnpm/self-installer@latest | node
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Install dependencies
+        run: pnpm --prefix presentation/ install --frozen-lockfile
+
+      - name: Build presentation
+        run: pnpm --prefix presentation/ build --base ${{ github.event.repository.name }}
+
+      - name: Move Presentation
+        run: mv presentation/dist/ pages
+
+      - name: Build Javadoc
+        run: |
+          cd backend
+          make javadoc
+
+      - name: Move Javadoc
+        run: |
+          mv backend/docs/ pages/javadoc/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./pages
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
