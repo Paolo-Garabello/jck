@@ -2,7 +2,10 @@ package utilities;
 
 import Kalkulator.Expression;
 import Kalkulator.Rotaluklak;
-
+/**
+ * Checks if a supported command is inside the received message 
+ * and executes it 
+ */
 public class MessageProcesser {
     
     public static String process(String message) {

@@ -38,6 +38,9 @@ public class MainWebSocketServer extends WebSocketServer {
     }
 
     @Override
+    /**
+     * Creates a connection to the db once the ws is started.
+     */
     public void onStart() {
         
         try {
@@ -60,6 +63,10 @@ public class MainWebSocketServer extends WebSocketServer {
     }
  
     @Override
+    /**
+     * When a user disconnects from the ws it sets a time for the user itself and
+     * disconnects every other user whose at lest 30 minutes have passed.
+     */
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println("Closed connection: " + conn.getRemoteSocketAddress());
         
@@ -84,6 +91,15 @@ public class MainWebSocketServer extends WebSocketServer {
     }
 
     @Override
+    /**
+     * It manages request that the client does to the server.
+     * The managed requests are: 
+     * sendMessage
+     * signup
+     * login
+     * auth
+     * getChats
+     */
     public void onMessage(WebSocket conn, String message) {
         try{
             System.out.println(message);
@@ -178,6 +194,9 @@ public class MainWebSocketServer extends WebSocketServer {
     }
 
     @Override
+    /**
+     * If an error on connection occurs, it prints the stacktrace.
+     */
     public void onError(WebSocket conn, Exception ex) {
         if (conn != null) {
             System.err.println("Error on connection " + conn.getRemoteSocketAddress() + ": " + ex);

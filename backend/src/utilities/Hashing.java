@@ -5,8 +5,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 
+/**
+ * Manages hashings for the main application.
+ */
 public class Hashing {
     
+    /**
+     * Uses MD5 algorithm to create a token made of 
+     * the current timestamp and a random number.
+     * @return a unique token.
+     */
     public static String createToken() {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
