@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PublicMessage } from '$lib/types/PublicMessage';
 	import { slide } from 'svelte/transition';
+  import { marked } from 'marked';
 
   export let data: PublicMessage;
   export let myUsername: string | null = null;
@@ -11,6 +12,12 @@
     let date = new Date(unix_timestamp);
     let minutes = "0" + date.getMinutes();
     return date.getHours() + ':' + minutes.substring(minutes.length - 2);
+  }
+
+  function mdToHtml(text: string) {
+    return marked(text.replace(/</g, '&lt;').replace(/>/g, '&gt;')).toString()
+      .replace(/<p>/g, "<p style='margin: 0'>")
+    ;
   }
 
 </script>
@@ -26,7 +33,7 @@
     }}
   >
     {#each data.message.split('\n') as line}
-      <div>{line}</div>
+      {@html mdToHtml(line)}
     {/each}
   </li>
 {/if}
@@ -67,5 +74,9 @@
   li.me {
     align-self: flex-end;
     background-color: var(--primary-dark);
+  }
+
+  p {
+    margin-bottom: -15px;
   }
 </style>
