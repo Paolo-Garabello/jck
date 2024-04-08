@@ -23,6 +23,12 @@ The Java-Bases Chat Kit.
      ```
 3. Open the frontend at `localhost:3000` (*or any other available network interface*)
 
+## Documentation
+View the documentation [here](https://paolo-garabello.github.io/jck/) or build it with:
+```bash
+make docs
+```
+
 
 ## Credits
 This is a school project by [Paolo Garabello](https://github.com/Paolo-Garabello/) and [Sebastiano Racca](https://github.com/Sebastiano-Racca).

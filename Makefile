@@ -1,3 +1,6 @@
+DOCS_BASE_PATH ?= "/"
+
+
 default: all
 
 all: build run open
@@ -22,4 +25,19 @@ endif
 stop:
 	docker-compose stop
 
-.PHONY: all build run open stop
+docs: clean_docs build_docs
+
+clean_docs:
+	rm -rf pages
+
+build_docs:
+	@echo WEEE $(DOCS_BASE_PATH)
+	pnpm --prefix presentation/ install --frozen-lockfile
+	pnpm --prefix presentation/ build --base $(DOCS_BASE_PATH)
+	mkdir -p docs
+	mv presentation/dist/* docs/
+	$(MAKE) -C backend javadoc
+	mkdir -p docs/javadoc
+	mv backend/docs/* docs/javadoc/
+
+.PHONY: all build run open stop docs clean_docs build_docs

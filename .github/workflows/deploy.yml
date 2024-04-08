@@ -25,31 +25,13 @@ jobs:
       - name: Install dependencies
         run: pnpm --prefix presentation/ install --frozen-lockfile
 
-      - name: Build presentation
-        run: pnpm --prefix presentation/ build --base "/${{ github.event.repository.name }}/"
-
-      - name: Move Presentation
-        run: mv presentation/dist/ pages
-
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'adopt'
-
-      - name: Build Javadoc
-        run: |
-          cd backend
-          make javadoc
-
-      - name: Move Javadoc
-        run: |
-          mv backend/docs/ pages/javadoc/
+      - name: Build Docs
+        run: make docs DOCS_BASE_PATH="/${{ github.event.repository.name }}/"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./pages
+          publish_dir: ./docs
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
