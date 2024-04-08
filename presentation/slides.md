@@ -132,3 +132,17 @@ layout: end
 ---
 
 # Grazie dell'Attenzione
+
+<a class="center" href="http://5.75.132.76:3000/" target="__blank">
+  <QRCode :link="'http://5.75.132.76:3000/'" />
+  http://5.75.132.76:3000/
+</a>
+
+<style>
+  .center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
